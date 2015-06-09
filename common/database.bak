@@ -1,0 +1,289 @@
+<?php
+class Database 
+{
+	var $connection;
+	var $_sql;	
+	var $extensions;
+	
+	function database($host, $user, $password, $name) {
+		global $connection;		
+		
+		$connection = @mysql_connect($host, $user, $password);
+		if (!$connection) 
+			die(mysql_error());
+		
+		mysql_select_db($name, $connection);	
+		mysql_query("SET NAMES 'utf8'");	
+	}
+
+	function changeRealDatabase($name) {
+		global $connection;
+
+		mysql_select_db($name, $connection);
+	}	
+	
+	function getEscaped( $text, $html = false ) {	
+		if (!$html) {
+			$text = htmlentities(stripslashes($text), ENT_QUOTES);
+		}
+		return mysql_real_escape_string($text);
+		//return ($text);
+	}
+	
+	function loadAssocList($sql='', $key = '', $value = false) {
+		$sql = mysql_query($sql);
+		$array=array();
+		while ($row = mysql_fetch_assoc( $sql )) {
+			if ($key) {
+				if($value) {
+					$array[$row[$key]] = $row[$value];
+				} else{
+					$array[$row[$key]] = $row;
+				}
+			} else {
+				$array[] = $row;
+			}
+		}
+		//mysql_free_result( $cur );		
+
+		return $array;
+	}
+	
+	function loadAssArray($sql='') {
+		$sql = mysql_query($sql);
+		$array=array();
+
+		$array = mysql_fetch_assoc( $sql ); 
+
+		return $array;
+	}
+
+	function loadCompleteTable($name, $key = '') {
+		return $this->loadAssocList(sprintf("SELECT * FROM %s WHERE 1", $name), $key);
+	}
+
+	function loadArrayFromID($name, $id) {
+		return $this->loadAssArray(sprintf("SELECT * FROM %s WHERE id = %d", $name, $id));
+	}
+
+	function loadArrayFromKeyValue($name, $key, $value) {
+		return $this->loadAssArray(sprintf("SELECT * FROM %s WHERE %s = %s", $name, $key, $value));
+	}
+
+	
+	function insertArray($table, &$array, $html=false) { 
+		$fmtsql = "INSERT INTO `$table` ( %s ) VALUES ( %s ) ";
+		$fields = array();
+		
+		foreach ($array as $k => $v) { 
+			if (is_array($v) or is_object($v) or $v === NULL) {
+				continue;
+			}
+			if ($k[0] == '_') { // internal field
+				continue;
+			}
+			$fields[] = "`$k`";
+			$values[] = "'" . $this->getEscaped($v,$html) . "'";
+		}
+		$sql = sprintf($fmtsql, implode(",", $fields),  implode(",", $values));
+		
+		$result = mysql_query($sql);
+		
+		$newID = mysql_insert_id();
+
+		return $newID;		
+	}
+
+	function updateArray($table, &$array, $keyName, $html = false) { 
+		$fmtsql = "UPDATE $table SET %s WHERE $keyName";
+		$tmp = array();
+		foreach ($array as $k => $v) { 
+			if( is_array($v) or is_object($v) or $k[0] == '_' ) { // internal or NA field
+				continue;
+			}
+			if( $k == $keyName ) { // PK not to be updated
+				$where = "$keyName='" . $this->getEscaped( $v, $html ) . "'";
+				continue;
+			}
+			if ($v === NULL && !$updateNulls) {
+				continue;
+			}
+			if( $v == '' ) {
+				$val = "''";
+			} else if($v == "NOW()") {
+				$val = $v;
+			} else {
+				$val = "'" . $this->getEscaped($v, $html) . "'";
+			}
+			$tmp[] = "`$k`=$val";
+		}
+		$sql = sprintf($fmtsql, implode(",", $tmp));
+		$result = mysql_query($sql);
+	
+	}
+
+	function deleteEntries($table, $where, $limited, $limit = '') {
+		$sql = sprintf("DELETE FROM `%s` WHERE %s", $table, $where);
+		if($limited) {
+			$sql .= " ".$limit;
+		} 
+		mysql_query($sql);		
+	}
+
+	function getFileName($id, $checkable = false) {
+                global $registry;
+		global $warningArray;
+		global $user;
+
+		$sql = sprintf("SELECT * FROM %s_files WHERE id = %d LIMIT 1", TABLE_PREFIX, $id);
+		$file = $this->loadAssArray($sql);
+		//now we have the file data. Is it allowed by our submodule?
+		if($checkable != "bananenZijnLekkerMaarNietBijDeKoffie") {
+			$extensions = array();
+			$parentClassName = get_parent_class($this);
+	                $className = get_class($this);
+			$thisClass = $registry->__getOwningModule($className);
+			$parentClass = $registry->__getOwningModule($parentClassName);
+			$extensions = array_merge(explode(",", $thisClass->extensions), explode(",", $parentClass->extensions));
+			if(!in_array($file['type'], $extensions)) {
+				//The file use in this submodule was NOT authorized. Raise a warning, add warning to security queue
+				$warningArray[] = sprintf("The use of this filetype '%s' is NOT authorized in the class '%s' or it's parent class '%s'. Security warning raised.", 
+								$file['type'], $className, $parentClassName);
+				$this->addSecurityWarning('file', sprintf("User %s tried to access the file %s of type %s, ID %d from the class %s, with parentclass %s. These classes do not permit this filetype.",
+								$user->userName, $file['filename'], $file['type'], $id, $className, $parentClassName));
+				return false;
+			}
+		}
+		//The file use is authorized. Now check if it exists, and if it is the actual file
+		$filename = md5(md5($file['filename']).md5($file['time']));
+		if(!file_exists('uploads/'.$filename)) {
+			//File does not exist. Raise a warning, add warning to security queue
+			$warningArray[] = sprintf("You have tried to use a non-existing or deleted file. Security warning raised.");
+			$this->addSecurityWarning('file', sprintf("User %s tried to access the file %s of type %s, ID %d from the class %s, with parentclass %s. This file however does not exist.",
+                                                        $user->userName, $file['filename'], $file['type'], $id, $className, $parentClassName));
+			return false;
+		}
+		$finfo = finfo_open(FILEINFO_MIME_TYPE);
+		$mimeInfo = finfo_file($finfo, 'uploads/'.$filename);
+		finfo_close($finfo);
+		if($mimeInfo!= $file['mime']) {
+			//File is not what it says to be. Raise a warning, add warning to security queue
+			$warningArray[] = sprintf("The file you tried to access does not have the correct MIME type. It claims to be %s, but it is %s. Security warning raised.", $file['mime'], $mimeInfo);
+			$this->addSecurityWarning('file', sprintf("User %s tried to access the file %s of type %s, ID %d, with expected MIME type %s, but it has the MIME type %s.",
+							$user->userName, $file['filename'], $file['type'], $id, $file['mime'], $mimeInfo));	
+			return false;
+		}
+		$ctime = filectime('uploads/'.$filename);
+		if($ctime != $file['time']) {
+			//File was modified at a later date. Raise a warning, add warning to security queue
+			$warningArray[] = sprintf("The file you tried to access was modified. It claims to have been changed on %s, but we have it shown as %s. Security warning raised.", 
+							date("y-m-d H:i:s", $ctime), date("y-m-d H:i:s", $file['time']));
+			$this->addSecurityWarning('file', sprintf("User %s tried to access the file %s of type %s, ID %d, which has stored ctime of %s, but the OS claims it was changed on %s.",
+							$user->userName, $file['filename'], $file['type'], $id, date("y-m-d H:i:s", $file['time']), date("y-m-d H:i:s", $ctime)));
+			return false;
+		}
+		$returnFile = array('name' => $file['filename'], 'extension' => $file['type'], 'md5name' => $filename);
+		return $returnFile;
+	}
+
+	function uploadFile($formname) {
+		$fileinfo = $_FILES[$formname];
+
+                $extensions = array();
+                $parentClassName = get_parent_class($this);
+                $className = get_class($this);
+                global $registry;
+                global $warningArray;
+                global $user;
+                $thisClass = $registry->__getOwningModule($className);
+                $parentClass = $registry->__getOwningModule($parentClassName);
+                $extensions = array_filter(array_merge(explode(",", $thisClass->extensions), explode(",", $parentClass->extensions)));
+
+		$extension = end(explode(".", $fileinfo['name']));	
+
+		if(!in_array($extension, $extensions)) {
+                	//The file use in this submodule was NOT authorized. Raise a warning, add warning to security queue
+                        $warningArray[] = sprintf("The use of this filetype '%s' is NOT authorized in the class '%s' or it's parent class '%s'. Security warning raised.",
+                                                        $extension, $className, $parentClassName);
+                        $this->addSecurityWarning('file', sprintf("User %s tried to upload the file %s of type %s, from the class %s, with parentclass %s. These classes do not permit this filetype.",
+                                                        $user->userName, $fileinfo['name'], $extension, $className, $parentClassName));
+                        return false;
+                }
+                $finfo = finfo_open(FILEINFO_MIME_TYPE);
+                $mimeInfo = finfo_file($finfo, $fileinfo['tmp_name']);
+                finfo_close($finfo);
+		$mimes = $this->loadAssocList(sprintf("SELECT * FROM %s_mime WHERE 1", TABLE_PREFIX), "extension");
+		if($mimes[$extension]["mime"] != $mimeInfo) {
+			//The file use in this submodule was NOT authorized. Raise a warning, add warning to security queue
+			$warningArray[] = sprintf("The file you tried to upload does not have the correct MIME type. It claims to be %s, but it is %s. Security warning raised.", 
+						$mimes[$extension]['mime'], $mimeInfo);
+                        $this->addSecurityWarning('file', sprintf("User %s tried to upload the file %s of type %s, with expected MIME type %s, but it has the MIME type %s.",
+                                                        $user->userName, $fileinfo['name'], $extension, $mimes[$extension]['mime'], $mimeInfo));
+
+			return false;
+		}
+		$target_path = "uploads/".basename( $fileinfo['name']); 
+		if(!move_uploaded_file($fileinfo['tmp_name'], $target_path)) {
+			//The file could not be moved, for whatever reason. Raise a warning, and add it to security queue
+			$warningArray[] = sprintf("The file you tried to upload cannot be uploaded. Security warning raised.");
+                        $this->addSecurityWarning('file', sprintf("User %s tried to upload the file %s of type %s, but it failed. We don't know why, do check the permissions!",
+                                                        $user->userName, $fileinfo['name'], $file['type']));
+                        return false;
+		} 
+		$ctime = filectime($target_path);
+		$newname = md5(md5($fileinfo['name']).md5($ctime));
+		rename($target_path, "uploads/".$newname);
+		$newctime = filectime("uploads/".$newname);
+		$i=0;
+		while($ctime!=$newctime && $i<100) {
+			$i++;
+			$ctime = $newctime;
+			$newname = md5(md5($fileinfo['name']).md5($ctime));
+	                rename($target_path, "uploads/".$newname);
+	                $newctime = filectime("uploads/".$newname);
+		}
+		if($i==100 && $ctime!=$newctime) {
+			$warningArray[] = sprintf("The file you tried to upload cannot be uploaded.");	
+			$this->addSecurityWarning('file', sprintf("User %s tried to upload the file %s of type %s, but it failed. It failed during renaming for ctime, and failed 100 times. 
+								Check your disc-io speed and/or server load.",
+                                                        $user->userName, $fileinfo['name'], $file['type']));
+
+			return false;
+		}
+		//HURRAY, We finally have the file uploaded and on it's place! Now put it in the database and be DONE with it.
+		$dbFile = array("type" => $extension, "mime" => $mimeInfo, "filename" => $fileinfo['name'], "time" => $ctime, "show_extension" => 0);
+		$id = $this->insertArray(TABLE_PREFIX."_files", $dbFile);
+		$info = $this->getFileName($id);
+		$info['id'] = $id;
+		return $info;
+	}	
+
+	function addSecurityWarning($type, $description) {
+		global $user;
+		$warning = array('user' => $user->userID, 'mentioned' => 0, 'type' => $type, 'description' => $description, 'time' => date("Y-m-d H:i:s"));
+		$this->insertArray(TABLE_PREFIX."_security_queue", $warning);
+	}
+
+	function gatherSecurityQueue() {
+		global $warningArray;
+		$sql = sprintf("SELECT *, %s_security_queue.id as ID FROM %s_security_queue LEFT JOIN %s_user_core ON %s_security_queue.user = %s_user_core.id WHERE mentioned = 0", 
+				TABLE_PREFIX, TABLE_PREFIX, TABLE_PREFIX, TABLE_PREFIX, TABLE_PREFIX);
+		$securityWarnings = $this->loadAssocList($sql);
+		$seen = array("mentioned" => 1);
+		foreach($securityWarnings as $warning) {
+			$warningArray[] = sprintf("At %s, userID %d (%s) raised a security exception: %s", $warning['time'], $warning['user'], $warning['username'], $warning["description"]);
+			$where = sprintf("id = %d AND mentioned = 0", $warning['ID']);
+			$this->updateArray(TABLE_PREFIX."_security_queue", $seen, $where);
+			
+		}		
+	}
+
+	function setExtension($extension) {
+		$this->extensions = $extension;
+	}
+	
+	function test() {
+		printf("Hello world! I am a loaded Database!");
+	}
+}
+?>
