@@ -85,7 +85,7 @@ class mysqlDBTest extends PHPUnit_Framework_TestCase
         $this->mysqlLoader->loadSQLFile("tests/sql/common/mysqlDB.sql");
 
         $expected = array(
-            array(
+            'id' => array(
                 'Field' => 'id',
                 'Type' => 'int(11)',
                 'Null' => 'NO',
@@ -93,7 +93,7 @@ class mysqlDBTest extends PHPUnit_Framework_TestCase
                 'Default' => NULL,
                 'Extra' => 'auto_increment'
             ), 
-            array(
+            'name' => array(
                 'Field' => 'name',
                 'Type' => 'char(30)',
                 'Null' => 'NO',
@@ -105,6 +105,31 @@ class mysqlDBTest extends PHPUnit_Framework_TestCase
 
         $actual = $this->mysql->describeTable('persons');
         $this->assertEquals($expected, $actual, "Describe not correct!");
+    }
+
+    public function testLoggedDescribe()
+    {
+        $expected = array(
+            'id' => array(
+                'Field' => 'id',
+                'Type' => 'int(11)',
+                'Null' => 'NO',
+                'Key' => 'PRI',
+                'Default' => NULL,
+                'Extra' => 'auto_increment'
+            ), 
+            'name' => array(
+                'Field' => 'name',
+                'Type' => 'char(30)',
+                'Null' => 'NO',
+                'Key' => '',
+                'Default' => NULL,
+                'Extra' => ''
+            )
+        );
+        $actual = $this->mysql->describeTable('persons');
+        $this->assertEquals($expected, $actual, "Describe not correct!");
+
     }
 
     public function testSQLLog()
@@ -148,7 +173,6 @@ class mysqlDBTest extends PHPUnit_Framework_TestCase
             "query: [INSERT INTO persons (name) VALUES 
   ('adam'), ('eve'), ('emiel')]",
 
-            "query: [DESCRIBE persons]",
             "query: [SELECT * FROM persons WHERE 1]",
             "query: [SELECT * FROM persons WHERE id = 1]"
         );

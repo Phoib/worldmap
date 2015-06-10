@@ -1,6 +1,7 @@
 <?php
 
 require_once("settings/mysql.php");
+require_once("settings/timezone.php");
 
 function includeDir($directory)
 {

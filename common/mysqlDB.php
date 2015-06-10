@@ -2,12 +2,14 @@
 
 class mysqlDB
 {
-    private $connection;
+    protected $connection;
     private $sqlLog;
+    private $descriptions;
 
     public function __construct($host, $user, $password, $database)
     {
 	$this->sqlLog = array();
+	$this->descriptions = array();
 
         $this->connection = new mysqli($host, $user, $password, $database);
         $this->query("SET NAMES 'utf8'");	
@@ -98,8 +100,17 @@ class mysqlDB
 
     public function describeTable($table)
     {
+	if(isset($this->descriptions[$table])) {
+            return $this->descriptions[$table];
+        }
         $sql = $this->sanitize(sprintf("DESCRIBE %s", $table));
-        return $this->getRows($sql);
+        $rows = $this->getRows($sql);
+        $description = array();
+        foreach($rows as $row) {
+            $description[$row['Field']] = $row;
+        }
+        $this->descriptions[$table] = $description;
+        return $this->descriptions[$table];
     }
 
     public function sanitize ($sql = false)
