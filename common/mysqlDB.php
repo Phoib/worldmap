@@ -3,11 +3,24 @@
 class mysqlDB
 {
     private $connection;
+    private $sqlLog;
 
     public function __construct($host, $user, $password, $database)
     {
+	$this->sqlLog = array();
+
         $this->connection = new mysqli($host, $user, $password, $database);
-        $this->connection->query("SET NAMES 'utf8'");	
+        $this->query("SET NAMES 'utf8'");	
+    }
+
+    public function getSQLLog()
+    {
+        return $this->sqlLog;
+    }
+
+    public function appendToLog($statement)
+    {
+        $this->sqlLog[] = $statement;
     }
 
     public function getConnection()
@@ -33,7 +46,18 @@ class mysqlDB
     }
 
     public function query ( $sql = false ) {
+        $now = microtime(true);
+        $memory = memory_get_usage(true);
         $res = $this->connection->query($sql);
+        $now = (int)((microtime(true) - $now)*1000000);
+        $memory = (int)((memory_get_usage(true) - $memory)/1024);
+        $statement = "SQL Query: $now usec; $memory Kb; query: [$sql]";
+        if(get_class($this) == "mysqlDB") {
+            $this->appendToLog($statement);
+        } else{
+            global $mysqlDB;
+            $mysqlDB->appendToLog($statement);
+        }
         return (isset($res)) ? $res : false;
     }
 

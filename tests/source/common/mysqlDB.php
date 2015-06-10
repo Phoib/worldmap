@@ -106,4 +106,58 @@ class mysqlDBTest extends PHPUnit_Framework_TestCase
         $actual = $this->mysql->describeTable('persons');
         $this->assertEquals($expected, $actual, "Describe not correct!");
     }
+
+    public function testSQLLog()
+    {
+        $this->mysqlLoader->loadSQLFile("tests/sql/common/mysqlDB.sql");
+        $this->mysql->describeTable('persons');
+        $allRows = "SELECT * FROM persons WHERE 1";
+        $this->mysql->getRows($allRows);
+        $this->mysql->getById('persons', 1);
+
+        /* ALL queries for this testclass are logged*/
+        $expected = array(
+            "query: [SET NAMES 'utf8']",
+            "query: [SHOW TABLES]",
+            "query: [CREATE TABLE persons (
+  id int NOT NULL AUTO_INCREMENT,
+  name CHAR(30) NOT NULL,
+  PRIMARY KEY (id)
+)]",
+            "query: [INSERT INTO persons (name) VALUES 
+  ('adam'), ('eve'), ('emiel')]",
+            "query: [SELECT * FROM persons WHERE id = 1]",
+            "query: [SELECT * FROM persons WHERE id = 1]",
+            "query: [SELECT * FROM persons WHERE 1]",
+            "query: [SELECT * FROM persons WHERE 1]",
+            "query: [DROP TABLE persons]",
+            "query: [CREATE TABLE persons (
+  id int NOT NULL AUTO_INCREMENT,
+  name CHAR(30) NOT NULL,
+  PRIMARY KEY (id)
+)]",
+            "query: [INSERT INTO persons (name) VALUES 
+  ('adam'), ('eve'), ('emiel')]",
+            "query: [DESCRIBE persons]",
+            "query: [DROP TABLE persons]",
+            "query: [CREATE TABLE persons (
+  id int NOT NULL AUTO_INCREMENT,
+  name CHAR(30) NOT NULL,
+  PRIMARY KEY (id)
+)]",
+            "query: [INSERT INTO persons (name) VALUES 
+  ('adam'), ('eve'), ('emiel')]",
+
+            "query: [DESCRIBE persons]",
+            "query: [SELECT * FROM persons WHERE 1]",
+            "query: [SELECT * FROM persons WHERE id = 1]"
+        );
+        $actual = array();
+        $fullLog = $this->mysql->getSQLLog();
+        foreach($fullLog as $log) {
+            $parts = explode(";", $log);
+            $actual[] = trim($parts[2]);
+        }
+        $this->assertEquals($expected, $actual, "SQL Statements not logged!");
+    }
 }

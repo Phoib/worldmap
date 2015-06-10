@@ -5,4 +5,3 @@ CREATE TABLE persons (
 );
 INSERT INTO persons (name) VALUES 
   ('adam'), ('eve'), ('emiel');
-

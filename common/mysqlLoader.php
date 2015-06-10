@@ -17,12 +17,14 @@ class mysqlLoader extends mysqlDB
         $sql = file_get_contents($file);
         $sqlStatements = explode(";", $sql);
         foreach($sqlStatements as $sqlStatement) {
-            trim($sqlStatement);
+            $sqlStatement = trim($sqlStatement);
             if(strtoupper(substr($sqlStatement, 0, 12)) == "CREATE TABLE") {
                 $createStatement = explode(" ", $sqlStatement);
                 $this->createdTables[] = $createStatement[2];
             }
-            $this->query($sqlStatement);
+            if(!empty($sqlStatement)) {
+                $this->query($sqlStatement);
+            }
         }
     }
 
