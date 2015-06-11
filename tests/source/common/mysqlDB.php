@@ -8,8 +8,10 @@ class mysqlDBTest extends PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        global $mysqlDB;
-        $this->mysql = $mysqlDB;
+	global $mysqlDB;
+        global $testdatabase;
+	$this->mysql = $mysqlDB;
+	$this->mysql->changeDB($testdatabase);
         $this->mysqlLoader = new mysqlLoader();
     }
 
@@ -143,7 +145,10 @@ class mysqlDBTest extends PHPUnit_Framework_TestCase
         /* ALL queries for this testclass are logged*/
         $expected = array(
             "query: [SET NAMES 'utf8']",
+            "query: [SET NAMES 'utf8']",
             "query: [SHOW TABLES]",
+            "query: [SET NAMES 'utf8']",
+            "query: [SET NAMES 'utf8']",
             "query: [CREATE TABLE persons (
   id int NOT NULL AUTO_INCREMENT,
   name CHAR(30) NOT NULL,
@@ -156,6 +161,7 @@ class mysqlDBTest extends PHPUnit_Framework_TestCase
             "query: [SELECT * FROM persons WHERE 1]",
             "query: [SELECT * FROM persons WHERE 1]",
             "query: [DROP TABLE persons]",
+            "query: [SET NAMES 'utf8']",
             "query: [CREATE TABLE persons (
   id int NOT NULL AUTO_INCREMENT,
   name CHAR(30) NOT NULL,
@@ -165,6 +171,8 @@ class mysqlDBTest extends PHPUnit_Framework_TestCase
   ('adam'), ('eve'), ('emiel')]",
             "query: [DESCRIBE persons]",
             "query: [DROP TABLE persons]",
+            "query: [SET NAMES 'utf8']",
+            "query: [SET NAMES 'utf8']",
             "query: [CREATE TABLE persons (
   id int NOT NULL AUTO_INCREMENT,
   name CHAR(30) NOT NULL,

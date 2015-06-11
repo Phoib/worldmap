@@ -9,7 +9,9 @@ class mysqlLoaderTest extends PHPUnit_Framework_TestCase
     public function setUp()
     {
         global $mysqlDB;
+        global $testdatabase;
         $this->mysql = $mysqlDB;
+	$this->mysql->changeDB($testdatabase);
         $this->mysqlLoader = new mysqlLoader();
     }
 

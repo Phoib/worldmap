@@ -32,7 +32,8 @@ class mysqlObject extends mysqlDB
             $parsedValue = $this->parseType($value, $this->description[$key]['Type']);
             $insertValues[$key] = $parsedValue;
         }        
-        $sql = "INSERT INTO `%s` ( %s ) VALUES ( %s ) ";
+	$sql = "INSERT INTO `%s` ( %s ) VALUES ( %s ) ";
+	
         $fields = array();
         $values = array();
         foreach($insertValues as $key => $value) {
@@ -43,7 +44,7 @@ class mysqlObject extends mysqlDB
         $result = $this->query($sql);
         if(!$result) {
             return 0;
-        }
+	}
         return $this->connection->insert_id;
     }
 
@@ -109,9 +110,13 @@ class mysqlObject extends mysqlDB
 
     private function parseTimestamp($value)
     {
+	$timeValue = strtotime($value);
+	if($timeValue == 0) {
+	    $timeValue = 1;
+        }
         return date(
             "Y-m-d H:i:s",
-            strtotime($value)
+            $timeValue
         );
     }
 
