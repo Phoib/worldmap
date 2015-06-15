@@ -1,11 +1,39 @@
 <?php
 
+/**
+ * This class describes the MySQL object, used to execute mysql queries
+ *
+ * @author     Emiel Suilen
+ * @copyright  Derelict Studios
+ * @category   common
+ * @package    worldmap
+ * @subpackage Core
+ */
 class mysqlDB
 {
-    protected $connection;
+    /**
+     * @var \mysqli    MySQL connection
+     */
+    protected	$connection;
+
+    /**
+     * @var array    Array containg the SQL queries and performance parameters
+     */
     private $sqlLog;
+
+    /**
+     * @var array    Array containing the table descriptions
+     */
     private $descriptions;
 
+    /**
+     * Create the mysqlDB object, used for MySQL queries.
+     *
+     * @param string $host     Hostname of the mysql server
+     * @param string $user     Username of the mysql connection
+     * @param string $password Password to identify the user
+     * @param string $database Database to be connected to
+     */
     public function __construct($host, $user, $password, $database)
     {
 	$this->sqlLog = array();
@@ -15,11 +43,21 @@ class mysqlDB
         $this->query("SET NAMES 'utf8'");	
     }
 
+    /**
+     * Returns the SQL log
+     *
+     * @return array $sqlLog
+     */
     public function getSQLLog()
     {
         return $this->sqlLog;
     }
 
+    /**
+     * Appends a query to the SQL log
+     *
+     * @param string SQL log statement
+     */
     public function appendToLog($statement)
     {
         $this->sqlLog[] = $statement;
@@ -53,7 +91,7 @@ class mysqlDB
         $res = $this->connection->query($sql);
         $now = (int)((microtime(true) - $now)*1000000);
         $memory = (int)((memory_get_usage(true) - $memory)/1024);
-        $statement = "SQL Query: $now usec; $memory Kb; query: [$sql]";
+	$statement = "SQL Query: $now usec; $memory Kb; query: [$sql]";
         if(get_class($this) == "mysqlDB") {
             $this->appendToLog($statement);
         } else{
