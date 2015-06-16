@@ -1,0 +1,32 @@
+<?php
+
+global $host;
+global $database;
+global $testdatabase;
+
+/**
+ * @var string hostname of the database server
+ */
+$host = '';
+
+/**
+ * @var string username to use for the database
+ */
+$user = '';
+
+/**
+ * @var string password to identify the user
+ */
+$password = '';
+
+/**
+ * @var string database for the worldmap instance
+ */
+$database = '';
+
+/**
+ * @var string database for the tests
+ */
+$testdatabase = '';
+
+?>
