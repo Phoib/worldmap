@@ -31,27 +31,27 @@ class mysqlDBTest extends PHPUnit_Framework_TestCase
     public function testSanitation()
     {
         $cleanQuery = "SELECT * FROM bla";
-	$actual = $this->mysql->sanitize($cleanQuery);
+    	$actual = $this->mysql->sanitize($cleanQuery);
         $this->assertEquals($cleanQuery, $actual, "The clean query was not clean!");
 
         $semicolonQuery = "SELECT * FROM foo; SELECT * FROM bar;";
         $expected = "SELECT * FROM foo SELECT * FROM bar";
-	$actual = $this->mysql->sanitize($semicolonQuery);
+    	$actual = $this->mysql->sanitize($semicolonQuery);
         $this->assertEquals($expected, $actual, "Semi colon not cleaned!");
 
         $quoteQuery = "SELECT * FROM test WHERE foo = 'bar'";
         $expected = "SELECT * FROM test WHERE foo = &#039;bar&#039;";
-	$actual = $this->mysql->sanitize($quoteQuery);
+    	$actual = $this->mysql->sanitize($quoteQuery);
         $this->assertEquals($expected, $actual, "Single quote not cleaned!");
 
         $doubleQuoteQuery = "SELECT * FROM test WHERE foo = \"bar\"";
         $expected = "SELECT * FROM test WHERE foo = &quot;bar&quot;";
-	$actual = $this->mysql->sanitize($doubleQuoteQuery);
+    	$actual = $this->mysql->sanitize($doubleQuoteQuery);
         $this->assertEquals($expected, $actual, "Double quote not cleaned!");
 
         $htmlQuery = "SELECT * FROM test WHERE foo = <html>";
         $expected = "SELECT * FROM test WHERE foo = &lt;html&gt;";
-	$actual = $this->mysql->sanitize($htmlQuery);
+    	$actual = $this->mysql->sanitize($htmlQuery);
         $this->assertEquals($expected, $actual, "HTML not cleaned!");
     }
 
