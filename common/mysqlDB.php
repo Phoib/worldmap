@@ -63,28 +63,52 @@ class mysqlDB
         $this->sqlLog[] = $statement;
     }
 
+    /**
+     * Returns the connection
+     *
+     * @return \mysqli	mysqli connection
+     */
     public function getConnection()
     {
         return $this->connection;
     }
 
+    /**
+     * Set the MySQL connection
+     *
+     * @param \mysqli connection
+     */
     public function setConnection($connection)
     {
         $this->connection = $connection;
     }
 
+    /**
+     * Use the Global database variable to set the mysql connection
+     */
     public function setFromGlobalDB()
     {
         global $mysqlDB;
         $this->setConnection($mysqlDB->getConnection());
     }
 
+    /**
+     * Change the database that is used
+     *
+     * @param string $database the name of the database
+     */
     public function changeDB($database)
     {
         $this->connection->select_db($database);
         $this->query("SET NAMES 'utf8'");
     }
 
+    /**
+     * Execute a SQL query
+     *
+     * @param  string         $sql SQL query
+     * @return \mysqli_result      The object containing the SQL result
+     */
     public function query ( $sql = false ) {
         $now = microtime(true);
         $memory = memory_get_usage(true);
@@ -101,6 +125,12 @@ class mysqlDB
         return (isset($res)) ? $res : false;
     }
 
+    /**
+     * Get a single row from SQL
+     *
+     * @param  string $sql The SQL query
+     * @return mixed       Returns either an associative array with the results or boolean false
+     */
     public function getRow($sql = false)
     {
         $result = $this->query($sql);
@@ -108,8 +138,14 @@ class mysqlDB
             return $result->fetch_assoc();
         }
         return false;
-    }   
+    }  
 
+     /**
+     * Returns all rows matching the SQL query
+     *
+     * @param  string $sql The SQL query
+     * @return mixed       Returns either an array with associative arrays with the results or boolean false
+     */
     public function getRows($sql = false)
     {
         $result = $this->query($sql);
@@ -124,18 +160,37 @@ class mysqlDB
         return false;
     }   
 
+    /**
+     * Get a single row identified by the given id
+     *
+     * @param  string $table Table to retrieve the row from
+     * @param  int    $id    ID identifying the row
+     * @return mixed         Either an associative array containing the result, or boolean false
+     */  
     public function getById($table, $id)
     {
         $sql = $this->sanitize(sprintf("SELECT * FROM %s WHERE id = %d", $table, $id));
         return $this->getRow($sql);
     }
 
+    /**
+     * Get all rows from a table
+     *
+     * @param  string $table Table to retrieve the row from
+     * @return mixed         Either an array with associative arrays containing the results, or boolean false
+     */  
     public function getWholeTable($table)
     {
         $sql = $this->sanitize(sprintf("SELECT * FROM %s WHERE 1", $table));
         return $this->getRows($sql);
     }
 
+    /**
+     * Return a description of a SQL table
+     *
+     * @param  string $table Name of the table
+     * @return array         Array describing the table
+     */
     public function describeTable($table)
     {
 	if(isset($this->descriptions[$table])) {
@@ -151,6 +206,12 @@ class mysqlDB
         return $this->descriptions[$table];
     }
 
+    /**
+     * Sanitize a piece of SQL by removing HTML and special SQL characters
+     *
+     * @param  string $sql The piece of SQL query
+     * @return string      Escaped piece of SQL query
+     */
     public function sanitize ($sql = false)
     {
         $sql = str_replace(";", "", $sql);

@@ -1,10 +1,32 @@
 <?php
 
+/**
+ * This class describes the MySQLObject object, used to do operations on tables
+ *
+ * @author     Emiel Suilen
+ * @copyright  Derelict Studios
+ * @category   common
+ * @package    worldmap
+ * @subpackage Core
+ */
 class mysqlObject extends mysqlDB
 {
+    /**
+     * @var string $objectName  Name of the current object
+     */
     private $objectName = "";
+
+    /**
+     * @var array $description  Description of the corresponding mysqlTable
+     */
     private $description = NULL;
 
+    /**
+     * Construct a MySQL object, based on a Mysql table name
+     *
+     * @var string $name    The name of the table to base the MySQL object on
+     * @throws Exception    If the table does not exist, throws an Exception
+     */
     public function __construct($name)
     {
         $this->setFromGlobalDB();
@@ -15,6 +37,11 @@ class mysqlObject extends mysqlDB
         }
     }
 
+    /**
+     * Return an array, with empty values, based on the MySQL description
+     *
+     * @return array    Array with the empty description
+     */
     public function returnInitialArray()
     {
         $return = array();
@@ -25,6 +52,12 @@ class mysqlObject extends mysqlDB
         return $return;
     }
 
+    /**
+     * Insert an Array into MySQL, parsing all values
+     *
+     * @param array $values Array with the values for the database
+     * @return int          Returns the ID of the newly created entry
+     */
     public function insert($values)
     {
         $insertValues = array();
@@ -32,7 +65,7 @@ class mysqlObject extends mysqlDB
             $parsedValue = $this->parseType($value, $this->description[$key]['Type']);
             $insertValues[$key] = $parsedValue;
         }        
-	$sql = "INSERT INTO `%s` ( %s ) VALUES ( %s ) ";
+    	$sql = "INSERT INTO `%s` ( %s ) VALUES ( %s ) ";
 	
         $fields = array();
         $values = array();
@@ -44,10 +77,17 @@ class mysqlObject extends mysqlDB
         $result = $this->query($sql);
         if(!$result) {
             return 0;
-	}
+    	}
         return $this->connection->insert_id;
     }
 
+    /**
+     * Parses a value, based on the MySQL type
+     *
+     * @param mixed  $value The value to be parsed
+     * @param string $type  The type to check against
+     * @return mixed        The parsed value
+     */
     private function parseType($value, $type)
     {
         switch($type) {
@@ -98,16 +138,34 @@ class mysqlObject extends mysqlDB
         }
     }
 
+    /**
+     * Casts a value to an int
+     *
+     * @param mixed $value The value to be cast
+     * @return int         The cast value
+     */
     private function parseInt($value)
     {
         return (int) $value;   
     }
 
+    /**
+     * Casts a value to an double
+     *
+     * @param mixed $value The value to be cast
+     * @return double      The cast value
+     */
     private function parseDouble($value)
     {
         return (double) $value;   
     }
 
+    /**
+     * Casts a value to a MySQL timestamp
+     *
+     * @param mixed $value The value to be cast
+     * @return string      The cast value
+     */
     private function parseTimestamp($value)
     {
 	$timeValue = strtotime($value);
@@ -120,6 +178,12 @@ class mysqlObject extends mysqlDB
         );
     }
 
+    /**
+     * Casts a value to a MySQL date
+     *
+     * @param mixed $value The value to be cast
+     * @return string      The cast value
+     */
     private function parseDate($value)
     {
         return date(
@@ -128,6 +192,12 @@ class mysqlObject extends mysqlDB
         );
     }
 
+    /**
+     * Casts a value to a string
+     *
+     * @param mixed $value The value to be cast
+     * @return string      The cast value
+     */
     private function parseChar($value, $type)
     {
         if(empty($value)) {
@@ -143,5 +213,4 @@ class mysqlObject extends mysqlDB
         }
         return $this->sanitize($value);
     }
-
 }

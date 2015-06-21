@@ -1,8 +1,14 @@
 <?php
 
+// Require the settings
 require_once("settings/mysql.php");
 require_once("settings/timezone.php");
 
+/**
+ * Scan a directory and include all listed PHP files
+ *
+ * @param string $directory The directory to scan for
+ */
 function includeDir($directory)
 {
     $files = scandir($directory);
@@ -17,9 +23,12 @@ function includeDir($directory)
     }
 }
 
+// Include all common functionalities
 includeDir("common");
 
+// Declare a global mysqlDB
 global $mysqlDB;
 
+// Create a mysql, mysqlLoader
 $mysqlDB = new mysqlDB($host, $user, $password, $database);
 $mysqlLoader = new mysqlLoader();

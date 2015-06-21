@@ -1,28 +1,57 @@
 <?php
+
+/**
+ * This class describes the MySQLObject Test object, used to test the MySQLObject class
+ *
+ * @author     Emiel Suilen
+ * @copyright  Derelict Studios
+ * @category   tests
+ * @package    worldmap
+ * @subpackage common
+ */
 class mysqlObjectTest extends PHPUnit_Framework_TestCase
 {
+
+    /**
+     * @var array Properties which should not be serialized by phpUnit
+     */
     protected $backupGlobalsBlacklist = array('mysqlDB');
 
-    private $mysqlLoader;
-    private $mysqlObject;
+    /**
+     * @var \MysqlDB        MySQL object
+     */
+    private $mysql;
 
+    /**
+     * @var \MysqlLoader    MySQL Loader object
+     */
+    private $mysqlLoader;
+
+    /**
+     * Setup the tests
+     */
     public function setUp()
     {
-	global $mysqlDB;
+    	global $mysqlDB;
         global $testdatabase;	
-	$mysqlDB->changeDB($testdatabase);
+    	$mysqlDB->changeDB($testdatabase);
         $this->mysqlLoader = new mysqlLoader();
         $this->mysqlLoader->loadSQLFile("tests/sql/common/mysqlObject.sql");
         $this->mysqlObject = new mysqlObject('dogs');
     }
 
-
+    /**
+     * Destroy the tests
+     */
     public function tearDown()
     {
         $this->mysqlLoader->dropTables();
         $this->mysqlObject = null;
     }
 
+    /**
+     * Tests the described object
+     */
     public function testDescription()
     {
         $expected = array(
@@ -38,6 +67,9 @@ class mysqlObjectTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($expected, $actual, "Description does not match!");
     }
 
+    /**
+     * Tests the insert function
+     */
     public function testInsert()
     {
         $values = array(
@@ -59,108 +91,113 @@ class mysqlObjectTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($expected, $actual, "The wrong dog was inserted");
     }
 
+    /**
+     * Tests an empty insert
+     */
     public function testInitialInsert()
     {
-	$expected = $this->mysqlObject->returnInitialArray();
+    	$expected = $this->mysqlObject->returnInitialArray();
         $expected['id'] = 1;
         $this->mysqlObject->insert($expected);
-	$actual = $this->mysqlObject->getById('dogs', 1);
-	foreach($expected as &$value) {
+    	$actual = $this->mysqlObject->getById('dogs', 1);
+    	foreach($expected as &$value) {
             $value = (string)$value;
-	}
-	$this->assertEquals($expected, $actual, "Empty gets inserted correctly");
+    	}
+    	$this->assertEquals($expected, $actual, "Empty gets inserted correctly");
     }
 
+    /**
+     * Tests if all variables are correctly cleaned
+     */
     public function testVariableCleaning()
     {
         $emptyDog = $this->mysqlObject->returnInitialArray();
-	$longName = $emptyDog;
-	$longName['name'] = "Fido The First of His Name, first Dog";
+    	$longName = $emptyDog;
+    	$longName['name'] = "Fido The First of His Name, first Dog";
         $this->mysqlObject->insert($longName);
-	$longName['name'] = "Fido The First of His Name, fi";
+    	$longName['name'] = "Fido The First of His Name, fi";
         $actual = $this->mysqlObject->getById('dogs', 1);
-	$this->assertEquals($longName['name'], $actual['name'], "Name was not shortened");
+    	$this->assertEquals($longName['name'], $actual['name'], "Name was not shortened");
 
-	$writtenEyes = $emptyDog;
-	$writtenEyes['eyes'] = "two";
-	$this->mysqlObject->insert($writtenEyes);
-	$writtenEyes['eyes'] = 0;
+    	$writtenEyes = $emptyDog;
+    	$writtenEyes['eyes'] = "two";
+    	$this->mysqlObject->insert($writtenEyes);
+    	$writtenEyes['eyes'] = 0;
         $actual = $this->mysqlObject->getById('dogs', 2);
-	$this->assertEquals($writtenEyes['eyes'], $actual['eyes'], "Int was not cast");
+    	$this->assertEquals($writtenEyes['eyes'], $actual['eyes'], "Int was not cast");
 
-	$writtenEyes['eyes'] = "2";
-	$this->mysqlObject->insert($writtenEyes);
-	$writtenEyes['eyes'] = 2;
+    	$writtenEyes['eyes'] = "2";
+    	$this->mysqlObject->insert($writtenEyes);
+    	$writtenEyes['eyes'] = 2;
         $actual = $this->mysqlObject->getById('dogs', 3);
-	$this->assertEquals($writtenEyes['eyes'], $actual['eyes'], "Int was not cast from string to int");
+    	$this->assertEquals($writtenEyes['eyes'], $actual['eyes'], "Int was not cast from string to int");
 
-	$writtenBirth = $emptyDog;
-	$writtenBirth['birth'] = "2000 01 01";
-	$this->mysqlObject->insert($writtenBirth);
-	$writtenBirth['birth'] = "1970-01-01";
+    	$writtenBirth = $emptyDog;
+    	$writtenBirth['birth'] = "2000 01 01";
+    	$this->mysqlObject->insert($writtenBirth);
+    	$writtenBirth['birth'] = "1970-01-01";
         $actual = $this->mysqlObject->getById('dogs', 4);
-	$this->assertEquals($writtenBirth['birth'], $actual['birth'], "Date was not cast");
+    	$this->assertEquals($writtenBirth['birth'], $actual['birth'], "Date was not cast");
 
-	$writtenBirth['birth'] = "3000-01-01";
-	$this->mysqlObject->insert($writtenBirth);
-	$writtenBirth['birth'] = "3000-01-01";
+    	$writtenBirth['birth'] = "3000-01-01";
+    	$this->mysqlObject->insert($writtenBirth);
+    	$writtenBirth['birth'] = "3000-01-01";
         $actual = $this->mysqlObject->getById('dogs', 5);
-	$this->assertEquals($writtenBirth['birth'], $actual['birth'], "Future was not cast");
+    	$this->assertEquals($writtenBirth['birth'], $actual['birth'], "Future was not cast");
 
-	$writtenBirth['birth'] = "1000-01-01";
-	$this->mysqlObject->insert($writtenBirth);
-	$writtenBirth['birth'] = "1000-01-01";
+    	$writtenBirth['birth'] = "1000-01-01";
+    	$this->mysqlObject->insert($writtenBirth);
+    	$writtenBirth['birth'] = "1000-01-01";
         $actual = $this->mysqlObject->getById('dogs', 6);
-	$this->assertEquals($writtenBirth['birth'], $actual['birth'], "Past was not cast");
+    	$this->assertEquals($writtenBirth['birth'], $actual['birth'], "Past was not cast");
 
-	$writtenBirth['birth'] = "1 01 01";
-	$this->mysqlObject->insert($writtenBirth);
-	$writtenBirth['birth'] = "1970-01-01";
+    	$writtenBirth['birth'] = "1 01 01";
+    	$this->mysqlObject->insert($writtenBirth);
+    	$writtenBirth['birth'] = "1970-01-01";
         $actual = $this->mysqlObject->getById('dogs', 7);
-	$this->assertEquals($writtenBirth['birth'], $actual['birth'], "Start of time was cast, should have returned 1970");
+    	$this->assertEquals($writtenBirth['birth'], $actual['birth'], "Start of time was cast, should have returned 1970");
 
-	$writtenBirth['birth'] = "2015-02-30";
-	$this->mysqlObject->insert($writtenBirth);
-	$writtenBirth['birth'] = "2015-03-02";
+    	$writtenBirth['birth'] = "2015-02-30";
+    	$this->mysqlObject->insert($writtenBirth);
+    	$writtenBirth['birth'] = "2015-03-02";
         $actual = $this->mysqlObject->getById('dogs', 8);
-	$this->assertEquals($writtenBirth['birth'], $actual['birth'], "Incorrect date was accepted");
+    	$this->assertEquals($writtenBirth['birth'], $actual['birth'], "Incorrect date was accepted");
 
-	$writtenSeen = $emptyDog;
-	$writtenSeen['lastSeen'] = "2000 01 01 00:00:00";
-	$this->mysqlObject->insert($writtenSeen);
-	$writtenSeen['lastSeen'] = "2000-01-01 00:00:00";
+    	$writtenSeen = $emptyDog;
+    	$writtenSeen['lastSeen'] = "2000 01 01 00:00:00";
+    	$this->mysqlObject->insert($writtenSeen);
+    	$writtenSeen['lastSeen'] = "2000-01-01 00:00:00";
         $actual = $this->mysqlObject->getById('dogs', 9);
-	$this->assertEquals($writtenSeen['lastSeen'], $writtenSeen['lastSeen'], "Timestamp was not cast");
+    	$this->assertEquals($writtenSeen['lastSeen'], $writtenSeen['lastSeen'], "Timestamp was not cast");
 
-	$writtenSeen['lastSeen'] = "1960 01 01 00:00:00";
-	$this->mysqlObject->insert($writtenSeen);
-	$writtenSeen['lastSeen'] = "1970-01-01 00:00:01";
+    	$writtenSeen['lastSeen'] = "1960 01 01 00:00:00";
+    	$this->mysqlObject->insert($writtenSeen);
+    	$writtenSeen['lastSeen'] = "1970-01-01 00:00:01";
         $actual = $this->mysqlObject->getById('dogs', 10);
-	$this->assertEquals($writtenSeen['lastSeen'], $writtenSeen['lastSeen'], "Timestamp before Unix 0 was not cast");
+    	$this->assertEquals($writtenSeen['lastSeen'], $writtenSeen['lastSeen'], "Timestamp before Unix 0 was not cast");
 
-	$writtenSeen['lastSeen'] = "2040 01 01 00:00:00";
-	$this->mysqlObject->insert($writtenSeen);
-	$writtenSeen['lastSeen'] = "1970-01-01 00:00:01";
+    	$writtenSeen['lastSeen'] = "2040 01 01 00:00:00";
+    	$this->mysqlObject->insert($writtenSeen);
+    	$writtenSeen['lastSeen'] = "1970-01-01 00:00:01";
         $actual = $this->mysqlObject->getById('dogs', 11);
-	$this->assertEquals($writtenSeen['lastSeen'], $writtenSeen['lastSeen'], "Timestamp after Unix -1 was not cast");
+    	$this->assertEquals($writtenSeen['lastSeen'], $writtenSeen['lastSeen'], "Timestamp after Unix -1 was not cast");
 
-	$writtenSeen['lastSeen'] = "2015 01 01 30:00:00";
-	$this->mysqlObject->insert($writtenSeen);
-	$writtenSeen['lastSeen'] = "1970-01-01 00:00:01";
+    	$writtenSeen['lastSeen'] = "2015 01 01 30:00:00";
+    	$this->mysqlObject->insert($writtenSeen);
+    	$writtenSeen['lastSeen'] = "1970-01-01 00:00:01";
         $actual = $this->mysqlObject->getById('dogs', 12);
-	$this->assertEquals($writtenSeen['lastSeen'], $writtenSeen['lastSeen'], "Incorrect hours were not cast");
+    	$this->assertEquals($writtenSeen['lastSeen'], $writtenSeen['lastSeen'], "Incorrect hours were not cast");
 
-	$writtenSeen['lastSeen'] = "2015-01-01 00:70:00";
-	$this->mysqlObject->insert($writtenSeen);
-	$writtenSeen['lastSeen'] = "1970-01-01 00:00:01";
+    	$writtenSeen['lastSeen'] = "2015-01-01 00:70:00";
+    	$this->mysqlObject->insert($writtenSeen);
+    	$writtenSeen['lastSeen'] = "1970-01-01 00:00:01";
         $actual = $this->mysqlObject->getById('dogs', 12);
-	$this->assertEquals($writtenSeen['lastSeen'], $writtenSeen['lastSeen'], "Incorrect minutes were not cast");
+    	$this->assertEquals($writtenSeen['lastSeen'], $writtenSeen['lastSeen'], "Incorrect minutes were not cast");
 
-	$writtenSeen['lastSeen'] = "2015-01-01 00:00:70";
-	$this->mysqlObject->insert($writtenSeen);
-	$writtenSeen['lastSeen'] = "1970-01-01 00:00:01";
+    	$writtenSeen['lastSeen'] = "2015-01-01 00:00:70";
+    	$this->mysqlObject->insert($writtenSeen);
+    	$writtenSeen['lastSeen'] = "1970-01-01 00:00:01";
         $actual = $this->mysqlObject->getById('dogs', 13);
-	$this->assertEquals($writtenSeen['lastSeen'], $writtenSeen['lastSeen'], "Incorrect seconds were not cast");
-
+    	$this->assertEquals($writtenSeen['lastSeen'], $writtenSeen['lastSeen'], "Incorrect seconds were not cast");
     }
 }
