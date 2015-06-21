@@ -1,33 +1,64 @@
 <?php
+
+/**
+ * This class describes the MySQL Test object, used to test the MySQLDB class
+ *
+ * @author     Emiel Suilen
+ * @copyright  Derelict Studios
+ * @category   tests
+ * @package    worldmap
+ * @subpackage common
+ */
 class mysqlDBTest extends PHPUnit_Framework_TestCase
 {
+    /**
+     * @var array Properties which should not be serialized by phpUnit
+     */
     protected $backupGlobalsBlacklist = array('mysqlDB');
 
+    /**
+     * @var \MysqlDB        MySQL object
+     */
     private $mysql;
+
+    /**
+     * @var \MysqlLoader    MySQL Loader object
+     */
     private $mysqlLoader;
 
+    /**
+     * Setup the tests
+     */
     public function setUp()
     {
-	global $mysqlDB;
+    	global $mysqlDB;
         global $testdatabase;
-	$this->mysql = $mysqlDB;
-	$this->mysql->changeDB($testdatabase);
+    	$this->mysql = $mysqlDB;
+    	$this->mysql->changeDB($testdatabase);
         $this->mysqlLoader = new mysqlLoader();
     }
 
-
+    /**
+     * Destroy the tests
+     */
     public function tearDown()
     {
         $this->mysqlLoader->dropTables();
     }
 
+    /**
+     * Tests if an empty database exists
+     */ 
     public function testEmptyTestDatabase()
     {
-	$result = $this->mysql->query("SHOW TABLES");
+    	$result = $this->mysql->query("SHOW TABLES");
 
-	$this->assertEquals(0, $result->num_rows, "Empty database is not empty!");
+    	$this->assertEquals(0, $result->num_rows, "Empty database is not empty!");
     }
 
+    /**
+     * Tests the sanitation function
+     */
     public function testSanitation()
     {
         $cleanQuery = "SELECT * FROM bla";
@@ -55,6 +86,9 @@ class mysqlDBTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($expected, $actual, "HTML not cleaned!");
     }
 
+    /**
+     * Tests the SQL get functions
+     */
     public function testGets()
     {
         $this->mysqlLoader->loadSQLFile("tests/sql/common/mysqlDB.sql");
@@ -82,6 +116,9 @@ class mysqlDBTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($expected, $actual, "Whole table not fetched!");
     }
 
+    /**
+     * Tests the describe function
+     */
     public function testDescribe()
     {
         $this->mysqlLoader->loadSQLFile("tests/sql/common/mysqlDB.sql");
@@ -109,6 +146,9 @@ class mysqlDBTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($expected, $actual, "Describe not correct!");
     }
 
+    /**
+     * Tests if describe function calls are logged
+     */
     public function testLoggedDescribe()
     {
         $expected = array(
@@ -134,6 +174,9 @@ class mysqlDBTest extends PHPUnit_Framework_TestCase
 
     }
 
+    /**
+     * Tests if the SQL log has all entries
+     */
     public function testSQLLog()
     {
         $this->mysqlLoader->loadSQLFile("tests/sql/common/mysqlDB.sql");
@@ -142,7 +185,7 @@ class mysqlDBTest extends PHPUnit_Framework_TestCase
         $this->mysql->getRows($allRows);
         $this->mysql->getById('persons', 1);
 
-        /* ALL queries for this testclass are logged*/
+        // ALL queries for this testclass are logged
         $expected = array(
             "query: [SET NAMES 'utf8']",
             "query: [SET NAMES 'utf8']",
