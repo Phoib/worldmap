@@ -200,4 +200,68 @@ class mysqlObjectTest extends PHPUnit_Framework_TestCase
         $actual = $this->mysqlObject->getById('dogs', 13);
     	$this->assertEquals($writtenSeen['lastSeen'], $writtenSeen['lastSeen'], "Incorrect seconds were not cast");
     }
+
+    /**
+     * Tests the update function
+     */
+    public function testUpdate()
+    {
+        $values = array(
+            'id' => 0,
+            'name' => 'Fido',
+            'eyes' => 2,
+            'birth' => '2015-06-10',
+            'lastSeen' => '2015-06-10 01:00:00',
+            'quote' => 'Woef',
+            'weight' => 10.0
+        );
+        $this->mysqlObject->insert($values);
+        $values['name'] = "Goofy";
+        $values['birth'] = "1932-05-25";
+        $values['quote'] = "Gosh";
+        $this->mysqlObject->insert($values);
+
+        $expected = $values;
+        $expected['id'] = 2;
+        
+        $actual = $this->mysqlObject->getById('dogs', 2);
+        $this->assertEquals($expected, $actual, "The wrong dog was inserted");
+
+        $update = array(
+            'name' => 'Rex',
+            'id' => 2
+        );
+        $this->mysqlObject->update($update, 'id');
+        $actual = $this->mysqlObject->getById('dogs', 2);
+        $expected['name'] = 'Rex';
+        $this->assertEquals($expected, $actual, "The wrong dog was updated, Fido is not Goofy");
+
+        $update = array(
+            'lastSeen' => 'NOW()',
+            'id' => 2
+        );
+        $this->mysqlObject->update($update, 'id');
+        $actual = $this->mysqlObject->getById('dogs', 2);
+
+        $expectedNow = time();;
+        $expectedMinus1 = date("Y-m-d H:i:s", $expectedNow-1);
+        $expectedPlus1 = date("Y-m-d H:i:s", $expectedNow+1);
+        $expectedNow = date("Y-m-d H:i:s", $expectedNow);
+
+        // There can be a delay in the update.
+        switch($actual['lastSeen']) {
+            case $expectedMinus1:
+                $expected['lastSeen'] = $expectedMinus1;
+            break;
+            case $expectedNow:
+                $expected['lastSeen'] = $expectedNow;
+            break;
+            case $expectedPlus1:
+                $expected['lastSeen'] = $expectedPlus1;
+            break;
+        }
+        $this->assertEquals($expected, $actual, "The wrong dog was updated, timestamp was wrong");
+
+    }
+
 }
