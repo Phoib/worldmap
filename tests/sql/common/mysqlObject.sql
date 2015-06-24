@@ -3,7 +3,7 @@ CREATE TABLE dogs (
   name CHAR(30) NOT NULL,
   eyes TINYINT(1) NOT NULL,
   birth DATE NOT NULL,
-  lastSeen TIMESTAMP NOT NULL,
+  lastSeen TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   weight double NOT NULL,
   quote TEXT,
   PRIMARY KEY (id)

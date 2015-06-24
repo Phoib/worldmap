@@ -82,6 +82,41 @@ class mysqlObject extends mysqlDB
     }
 
     /**
+     * Update a SQL entry, with values defined in an associative array.
+     * All values are checked
+     *
+     * @param  array  $values   Array with the values for the database
+     * @param  string $whereKey String with the name of the key that holds the where clause
+     * @return bool             Returns the result of the query
+     */
+	function update($values, $whereKey) { 
+		$sql = "UPDATE %s SET %s WHERE %s";
+		$tmp = array();
+		foreach ($values as $key => $value) { 
+            if( is_array($value) || is_object($value)) { 
+				continue;
+			}
+			if( $key == $whereKey ) { // Where key not to be updated, but used for where clause
+                $parsedValue = $this->parseType($value, $this->description[$key]['Type']);
+				$where = "$whereKey='$parsedValue'";
+				continue;
+			}
+            if (is_null($value)) {
+				continue;
+			}
+			if($value == "NOW()" && $this->description[$key]['Type'] == "timestamp") {
+				$value = $value;
+			} else {
+                $parsedValue = $this->parseType($value, $this->description[$key]['Type']);
+				$value = "'$parsedValue'";
+			}
+			$tmp[] = "`$key`=$value";
+		}
+        $sql = sprintf($sql, $this->objectName, implode(",", $tmp), $where);
+        return $this->query($sql);
+	}
+
+    /**
      * Parses a value, based on the MySQL type
      *
      * @param mixed  $value The value to be parsed
