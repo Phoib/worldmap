@@ -98,7 +98,8 @@ class mysqlObjectTest extends PHPUnit_Framework_TestCase
     {
     	$expected = $this->mysqlObject->returnInitialArray();
         $expected['id'] = 1;
-        $this->mysqlObject->insert($expected);
+        $id = $this->mysqlObject->insert($expected);
+        $this->assertEquals(1, $id, "The inserted ID was not returned!");
     	$actual = $this->mysqlObject->getById('dogs', 1);
     	foreach($expected as &$value) {
             $value = (string)$value;
@@ -231,7 +232,8 @@ class mysqlObjectTest extends PHPUnit_Framework_TestCase
             'name' => 'Rex',
             'id' => 2
         );
-        $this->mysqlObject->update($update, 'id');
+        $updateResult = $this->mysqlObject->update($update, 'id');
+        $this->assertTrue($updateResult, "The return value of update is wrong");
         $actual = $this->mysqlObject->getById('dogs', 2);
         $expected['name'] = 'Rex';
         $this->assertEquals($expected, $actual, "The wrong dog was updated, Fido is not Goofy");
@@ -261,7 +263,65 @@ class mysqlObjectTest extends PHPUnit_Framework_TestCase
             break;
         }
         $this->assertEquals($expected, $actual, "The wrong dog was updated, timestamp was wrong");
-
     }
 
+    /**
+     * Tests the update function
+     */
+    public function testDelete()
+    {
+        $values = array(
+            'id' => 0,
+            'name' => 'Fido',
+            'eyes' => 2,
+            'birth' => '2015-06-10',
+            'lastSeen' => '2015-06-10 01:00:00',
+            'quote' => 'Woef',
+            'weight' => 10.0
+        );
+        $this->mysqlObject->insert($values);
+        $expected = $values;
+        $expected['id'] = 1;
+        $actual = $this->mysqlObject->getById('dogs', 1);
+        $this->assertEquals($expected, $actual, "Wrong dog inserted");
+        $this->mysqlObject->delete('id', 1);
+        $actual = $this->mysqlObject->getById('dogs', 1);
+        $this->assertNull($actual, "The dog was not deleted");
+
+        $this->mysqlObject->insert($values);
+        $this->mysqlObject->insert($values);
+        $values['id'] = 4;
+        $values['name'] = "Xzargl";
+        $values['quote'] = "Take me to your intergalactic stickthrower boss";
+        $values['eyes'] = 8;
+        $this->mysqlObject->insert($values);
+        //Make sure all 3 dogs exist
+        $dog1 = $this->mysqlObject->getById('dogs', 2);
+        $dog2 = $this->mysqlObject->getById('dogs', 3);
+        $dog3 = $this->mysqlObject->getById('dogs', 4);
+        $this->assertNotNull($dog1, "Dog 1 was not inserted");
+        $this->assertNotNull($dog2, "Dog 2 was not inserted");
+        $this->assertEquals($values, $dog3, "Wrong dog retrieved");
+
+        //Delete all human dogs
+        $this->mysqlObject->delete('eyes', 2);
+        $dog1 = $this->mysqlObject->getById('dogs', 2);
+        $dog2 = $this->mysqlObject->getById('dogs', 3);
+        $dog3 = $this->mysqlObject->getById('dogs', 4);
+        $this->assertNull($dog1, "Dog 1 was not deleted");
+        $this->assertNull($dog2, "Dog 2 was not deleted");
+        $this->assertEquals($values, $dog3, "Wrong dog deleted");
+
+        //Multiply the alien dogs
+        $values['id'] = 0;
+        for($i=0;$i<5;$i++) {
+            $this->mysqlObject->insert($values);
+        }
+        $dogs = $this->mysqlObject->getWholeTable('dogs');
+        $this->assertEquals(count($dogs), 6, "Not enough dogs");
+        $this->mysqlObject->delete('eyes', 8, 3);
+        $dogs = $this->mysqlObject->getWholeTable('dogs');
+        $this->assertEquals(count($dogs), 3, "Delete limit was not obeyed");
+
+    }
 }

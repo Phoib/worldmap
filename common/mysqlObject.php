@@ -89,7 +89,8 @@ class mysqlObject extends mysqlDB
      * @param  string $whereKey String with the name of the key that holds the where clause
      * @return bool             Returns the result of the query
      */
-	function update($values, $whereKey) { 
+    public function update($values, $whereKey)
+    { 
 		$sql = "UPDATE %s SET %s WHERE %s";
 		$tmp = array();
 		foreach ($values as $key => $value) { 
@@ -114,7 +115,27 @@ class mysqlObject extends mysqlDB
 		}
         $sql = sprintf($sql, $this->objectName, implode(",", $tmp), $where);
         return $this->query($sql);
-	}
+    }
+ 
+    /**
+     * Delete a SQL entry.
+     *
+     * @param  string $where    The entry to delete is based on this key
+     * @param  string $value    The value for the where clause
+     * @param  string $limit    Optional description of the limit
+     * @return bool             Returns the result of the query
+     */
+    public function delete($where, $value, $limit = false)
+    { 
+        $sql = "DELETE FROM %s WHERE %s %s";
+        $parsedValue = $this->parseType($value, $this->description[$where]['Type']);
+        $where = "$where='$parsedValue'";
+        if($limit) {
+            $limit = "LIMIT " . $this->sanitize($limit);
+        }
+        $sql = sprintf($sql, $this->objectName, $where, $limit);
+        return $this->query($sql);
+    }
 
     /**
      * Parses a value, based on the MySQL type
