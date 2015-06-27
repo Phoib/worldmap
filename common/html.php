@@ -43,6 +43,7 @@ class html
     {
         $this->docType = "html";
         $this->language = "en";
+        $this->head = new htmlHead();
     }
 
     /**
@@ -165,10 +166,12 @@ class html
      */
     public function render()
     {
-        $this->html = sprintf("<!DOCTYPE %s>\n<html lang='%s'>", 
+        $this->html = sprintf("<!DOCTYPE %s>\n<html lang='%s'>\n", 
             $this->docType, $this->language);
-        $this->html = $this->head->render();
-        $this->html = $this->renderArray($this->body);
+        $this->html .= $this->head->render();
+        $this->html .= "  <body>\n";
+        $this->html .= $this->renderArray($this->body);
+        $this->html .= "  </body>\n</html>";
     }
 
     /**
