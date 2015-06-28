@@ -170,26 +170,7 @@ class html
         $this->html = sprintf("<!DOCTYPE %s>\n<html lang='%s'>\n", 
             $this->docType, $this->language);
         $this->html .= $this->head->render();
-        $this->html .= $this->body->render();
+        $this->html .= $this->body->render(1);
         $this->html .= "</html>";
-    }
-
-    /**
-     * Returns the html of all body pieces
-     *
-     * @param  array  $chunks   Array of html chunks
-     * @return string $return   The formatted html
-     */
-    private function renderArray($chunks)
-    {
-        $return = "";
-        foreach($chunks as $chunk) {
-            if($is_array($chunk)) {
-                $return .= $this->renderArray($chunk);
-            } else{
-                $return .= $chunk->render();
-            }
-        }
-        return $return;
     }
 }

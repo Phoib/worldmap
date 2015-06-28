@@ -49,11 +49,20 @@ class htmlTest extends PHPUnit_Framework_TestCase
 
         $actual =  $html->getBody()->getType();
         $expected = htmlChunk::BODY;
-        $this->assertEquals($expected, $actual);
+        $this->assertEquals($expected, $actual, "The HTML body has an inaccurate type");
 
-        // set test for when we have actual html chunks
+        $bodyChunk = new htmlChunk(htmlChunk::BODY);
+        $html->setBody($bodyChunk);
+        $actual = $html->body->render(0);
+        $expected = "<body>\n</body>\n";
+        $this->assertEquals($expected, $actual, "The HTML body was not set");
 
         // add html test for when we have actual html chunks
+        $tableChunk = new htmlChunk(htmlChunk::TABLE);
+        $html->addHtml($tableChunk);
+        $actual = $html->body->render(0);
+        $expected = "<body>\n  <table>\n  </table>\n</body>\n";
+        $this->assertEquals($expected, $actual, "The HTML body was not set");
 
         $htmlContents = $html->getHtml();
         $this->assertEquals("", $htmlContents, "HTML contents are not empty!");

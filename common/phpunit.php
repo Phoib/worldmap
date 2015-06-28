@@ -72,6 +72,48 @@ class phpUnit
     }
 
     /**
+     * Return rendered table of the testcases
+     *
+     * @return \htmlChunk Object with html of the testcases
+     */
+    public function returnTable()
+    {
+        $results = $this->returnTests();
+        $preRender = array(
+            array(
+                "TestFile", "Execution Time", "Memory", "Result", "Errors"
+            )
+        );
+        foreach($results as $file => $result) {
+            if($result[0] != 'F') {
+                $result = explode("\n", $result);
+                $stats = explode(",", $result[0]);
+                $preRender[] = array(
+                    $file, $stats[0], $stats[1], $result[2]
+                );
+            } else{
+                $result = explode("\n", $result);
+                $resultSize = sizeof($result);
+                unset($result[0]);
+                unset($result[1]);
+                $stats = explode(",", $result[2]);
+                unset($result[2]);
+                unset($result[3]);
+                unset($result[5]);
+                $failure = $result[$resultSize -2 ] . " " . $result[$resultSize -1];
+                unset($result[$resultSize -3]);
+                unset($result[$resultSize -2]);
+                unset($result[$resultSize -1]);
+                $error = implode("<br>", $result);
+                $preRender[] = array(
+                    $file, $stats[0], $stats[1], $failure, $error
+                );
+            }
+        }
+        return htmlChunk::generateTableFromArray($preRender, true);
+    }
+
+    /**
      * Execute the tests
      */
     public function executeTests()
