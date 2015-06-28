@@ -12,6 +12,9 @@
 class htmlHead extends html
 {
 
+    /**
+     * Title of the HTML page
+     */
     private $title = "";
 
     public function __construct()

@@ -47,8 +47,8 @@ class htmlTest extends PHPUnit_Framework_TestCase
         $actual = $html->head->getTitle();
         $this->assertEquals($title, $actual, "HTML head was not set!");
 
-        $actual =  $html->getBody();
-        $expected = array();
+        $actual =  $html->getBody()->getType();
+        $expected = htmlChunk::BODY;
         $this->assertEquals($expected, $actual);
 
         // set test for when we have actual html chunks

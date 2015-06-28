@@ -27,9 +27,9 @@ class html
     public $head = NULL;
 
     /**
-     * @private array $body         Array that contains all the HTML chunks
+     * @private \htmlChunk $body    Object that contains the contents of the body section
      */
-    public $body = array();
+    public $body = NULL;
 
     /**
      * @private string $html        String to contain all the HTML
@@ -44,6 +44,7 @@ class html
         $this->docType = "html";
         $this->language = "en";
         $this->head = new htmlHead();
+        $this->body = new htmlChunk(htmlChunk::BODY, 1);
     }
 
     /**
@@ -135,9 +136,9 @@ class html
     public function addHtml($html, $name = false)
     {
         if($name === false || empty($name)) {
-            $this->body[] = $html;
+            $this->body->addHtml($html);
         } else{
-            $this->body[$name] = $html;
+            $this->body->addHtml($html, $name);
         }
     }
 
@@ -169,9 +170,8 @@ class html
         $this->html = sprintf("<!DOCTYPE %s>\n<html lang='%s'>\n", 
             $this->docType, $this->language);
         $this->html .= $this->head->render();
-        $this->html .= "  <body>\n";
-        $this->html .= $this->renderArray($this->body);
-        $this->html .= "  </body>\n</html>";
+        $this->html .= $this->body->render();
+        $this->html .= "</html>";
     }
 
     /**
