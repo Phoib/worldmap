@@ -43,7 +43,6 @@ class htmlChunk extends html
         return $this->type;
     }
 
-
     /**
      * Sets the type
      *
