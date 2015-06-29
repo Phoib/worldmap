@@ -14,6 +14,7 @@ class htmlChunk extends html
 
     const BODY = "body";
     const TABLE = "table";
+    const FORM = "form";
     const TABLEROW = "tr";
     const TABLEHEADER = "th";
     const TABLECELL = "td";
@@ -24,13 +25,21 @@ class htmlChunk extends html
     private $type = "";
 
     /**
+     * @var array Settings of html tag
+     */
+    private $settings = array();
+
+    /**
      * @var array Contents of the HTML
      */
     private $contents = array();
 
-    public function __construct($type)
+    public function __construct($type, $settings = false)
     {
         $this->type = $type;
+        if($settings) {
+            $this->settings = $settings;
+        }
     }
 
     /**
@@ -73,7 +82,11 @@ class htmlChunk extends html
         for($i=0;$i<$indentLevel;$i++) {
             $indentation .= "  ";
         }
-        $html = sprintf("%s<%s>\n", $indentation, $this->type);
+        $settings = "";
+        foreach($this->settings as $key => $value) {
+            $settings .= " $key='$value'";
+        }
+        $html = sprintf("%s<%s%s>\n", $indentation, $this->type, $settings);
         foreach($this->contents as $content) {
             if(is_object($content)) {
                 $html .= $content->render($indentLevel+1);
@@ -115,5 +128,21 @@ class htmlChunk extends html
             $table->addHtml($rowChunk);       
         }
         return $table;
+    }
+
+    /**
+     * Generate a form chunk
+     */
+    public static function generateForm($action, $get = false)
+    {
+        $settings = array(
+            'action' => $action,
+            'method' => 'post'
+        );
+        if($get) {
+            $settings['method'] = 'get';
+        }
+        $form = new htmlChunk(htmlChunk::FORM, $settings);
+        return $form;
     }
 }

@@ -72,4 +72,17 @@ class htmlChunkTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($expected, $actual, "Table header not rendered properly!");
     }
 
+    public function testForm()
+    {
+        $form = htmlChunk::generateForm('foo');
+        $actual = $form->render(0);
+        $expected = "<form action='foo' method='post'>\n</form>\n";
+        $this->assertEquals($expected, $actual, "Form not rendered properly!");
+
+        $form = htmlChunk::generateForm('foo', true);
+        $actual = $form->render(0);
+        $expected = "<form action='foo' method='get'>\n</form>\n";
+        $this->assertEquals($expected, $actual, "Form with get not rendered properly!");
+    }
+
 }

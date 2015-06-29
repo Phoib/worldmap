@@ -44,7 +44,7 @@ class html
         $this->docType = "html";
         $this->language = "en";
         $this->head = new htmlHead();
-        $this->body = new htmlChunk(htmlChunk::BODY, 1);
+        $this->body = new htmlChunk(htmlChunk::BODY);
     }
 
     /**
