@@ -12,17 +12,28 @@
 class htmlChunk extends html
 {
 
-    const BODY = "body";
-    const TABLE = "table";
-    const FORM = "form";
-    const TABLEROW = "tr";
+    const BODY        = "body";
+    const TABLE       = "table";
+    const FORM        = "form";
+    const INPUT       = "input";
+    const TABLEROW    = "tr";
     const TABLEHEADER = "th";
-    const TABLECELL = "td";
+    const TABLECELL   = "td";
 
     /**
      * @var string Type of the HTML chunk
      */
     private $type = "";
+
+    /**
+     * @var string Name of the HTML chunk
+     */
+    private $name = "";
+
+    /**
+     * @var string ID of the HTML chunk
+     */
+    private $id = "";
 
     /**
      * @var array Settings of html tag
@@ -34,9 +45,23 @@ class htmlChunk extends html
      */
     private $contents = array();
 
-    public function __construct($type, $settings = false)
+    /**
+     * @var bool If the html type has a closing tag
+     */
+    private $closingTag = true;
+
+    public function __construct($type, $name = false, $id = false, $settings = false)
     {
         $this->type = $type;
+        if($type == htmlChunk::INPUT) {
+            $this->closingTag = false;
+        }
+        if($name) {
+            $this->name = $name;
+        }
+        if($id) {
+            $this->id = $id;
+        }
         if($settings) {
             $this->settings = $settings;
         }
@@ -62,6 +87,46 @@ class htmlChunk extends html
         $this->type = $type;
     }
 
+    /**
+     * Gets the name
+     *
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
+
+    /**
+     * Sets the name
+     *
+     * @param string $type The name of the HTML chunk
+     */
+    public function setName($name)
+    {
+        $this->name = $name;
+    }
+
+    /**
+     * Gets the id
+     *
+     * @return string
+     */
+    public function getId()
+    {
+        return $this->Id;
+    }
+
+    /**
+     * Sets the id
+     *
+     * @param string $id The id of the HTML chunk
+     */
+    public function setId($id)
+    {
+        $this->id = $id;
+    }
+
     public function addHtml($html, $name = false)
     {
         if($name === false || empty($name)) {
@@ -76,17 +141,24 @@ class htmlChunk extends html
      *
      * @return string The rendered html
      */
-    public function render($indentLevel)
+    public function render($indentLevel = 0)
     {
         $indentation = "";
         for($i=0;$i<$indentLevel;$i++) {
             $indentation .= "  ";
         }
         $settings = "";
+        if($this->name) {
+            $settings .= " name='" . $this->name . "'";
+        }
+        if($this->id) {
+            $settings .= " id='" . $this->id . "'";
+        }
         foreach($this->settings as $key => $value) {
             $settings .= " $key='$value'";
         }
-        $html = sprintf("%s<%s%s>\n", $indentation, $this->type, $settings);
+        $html = sprintf("%s<%s%s>\n", 
+            $indentation, $this->type, $settings);
         foreach($this->contents as $content) {
             if(is_object($content)) {
                 $html .= $content->render($indentLevel+1);
@@ -94,7 +166,9 @@ class htmlChunk extends html
                 $html .= $indentation . "  " . $content . "\n";
             }
         }
-        $html .= sprintf("%s</%s>\n", $indentation, $this->type);
+        if($this->closingTag) {
+            $html .= sprintf("%s</%s>\n", $indentation, $this->type);
+        }
         return $html;
     }
 
@@ -132,8 +206,14 @@ class htmlChunk extends html
 
     /**
      * Generate a form chunk
+     *
+     * @param string $action    Action to be done by the form
+     * @param string $name      Name of the form
+     * @param string $id        Id of the form
+     * @param bool   $get       Optional, if the form should be (default) post or optional get
+     * @return \htmlChunk       The htmlChunk with the form
      */
-    public static function generateForm($action, $get = false)
+    public static function generateForm($action, $name, $id, $get = false)
     {
         $settings = array(
             'action' => $action,
@@ -142,7 +222,27 @@ class htmlChunk extends html
         if($get) {
             $settings['method'] = 'get';
         }
-        $form = new htmlChunk(htmlChunk::FORM, $settings);
-        return $form;
+        return new htmlChunk(htmlChunk::FORM, $name, $id, $settings);
+    }
+
+    /**
+     * Generate an input chunk
+     *
+     * @param string $type      Type of the input field
+     * @param string $name      Name of the input field
+     * @param string $id        Id of the input field
+     * @param bool   $get       Optional, value of the input field
+     * @return \htmlChunk       The htmlChunk with the input field
+
+     */
+    public static function generateInput($type, $name, $id, $value = false)
+    {
+        $settings = array(
+            'type' => $type
+        );
+        if($value) {
+            $settings['value'] = $value;
+        }
+        return new htmlChunk(htmlChunk::INPUT, $name, $id, $settings);
     }
 }

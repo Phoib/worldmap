@@ -104,6 +104,9 @@ class phpUnit
                 unset($result[$resultSize -3]);
                 unset($result[$resultSize -2]);
                 unset($result[$resultSize -1]);
+                foreach($result as &$line) {
+                    $line = htmlspecialchars($line);
+                }
                 $error = implode("<br>", $result);
                 $preRender[] = array(
                     $file, $stats[0], $stats[1], $failure, $error
