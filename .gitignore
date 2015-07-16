@@ -1,3 +1,4 @@
 settings/mysql.php
 settings/timezone.php
 common/datab.bak
+*.swp
