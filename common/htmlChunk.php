@@ -19,6 +19,17 @@ class htmlChunk extends html
     const TABLEROW    = "tr";
     const TABLEHEADER = "th";
     const TABLECELL   = "td";
+    const INPUTTYPES  = array(
+        'text',
+        'button',
+        'checkbox',
+        'file',
+        'hidden',
+        'password',
+        'radio',
+        'reset',
+        'text'
+    );
 
     /**
      * @var string Type of the HTML chunk
@@ -237,6 +248,10 @@ class htmlChunk extends html
      */
     public static function generateInput($type, $name, $id, $value = false)
     {
+        $type = strtolower($type);
+        if(!in_array($type, htmlChunk::INPUTTYPES)) {
+            throw new Exception("Invalid type declared: $type");
+        }
         $settings = array(
             'type' => $type
         );

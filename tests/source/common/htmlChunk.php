@@ -93,10 +93,15 @@ class htmlChunkTest extends PHPUnit_Framework_TestCase
      */
     public function testInput()
     {
-        $input = htmlChunk::generateInput('text', 'foo', 'bar');
-        $actual = $input->render();
-        $expected = "<input name='foo' id='bar' type='text'>\n";
-        $this->assertEquals($expected, $actual, "Input not rendered properly!");
+        foreach(htmlChunk::INPUTTYPES as $type) {
+            $input = htmlChunk::generateInput($type, 'foo', 'bar');
+            $actual = $input->render();
+            $expected = "<input name='foo' id='bar' type='$type'>\n";
+            $this->assertEquals($expected, $actual, "Input $type not rendered properly!");
+        }
+
+        $this->setExpectedException("Exception", "Invalid type declared: bla");
+        $input = htmlChunk::generateInput('bla', 'foo', 'bar');      
     }
 
 }
