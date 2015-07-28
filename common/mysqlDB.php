@@ -36,8 +36,8 @@ class mysqlDB
      */
     public function __construct($host, $user, $password, $database)
     {
-	$this->sqlLog = array();
-	$this->descriptions = array();
+    	$this->sqlLog = array();
+    	$this->descriptions = array();
 
         $this->connection = new mysqli($host, $user, $password, $database);
         $this->query("SET NAMES 'utf8'");	
