@@ -25,6 +25,8 @@ function includeDir($directory)
 
 // Include all common functionalities
 includeDir("common");
+// Include all MVC structures
+includeDir("objects");
 
 // Declare a global mysqlDB
 global $mysqlDB;
