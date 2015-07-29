@@ -14,12 +14,12 @@ class mysqlObject extends mysqlDB
     /**
      * @var string $objectName  Name of the current object
      */
-    private $objectName = "";
+    protected $objectName = "";
 
     /**
      * @var array $description  Description of the corresponding mysqlTable
      */
-    private $description = NULL;
+    protected $description = NULL;
 
     /**
      * Construct a MySQL object, based on a Mysql table name
