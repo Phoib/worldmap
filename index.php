@@ -37,3 +37,8 @@ $html->addHtml($sqlTable);
 
 $html->render();
 echo $html->getHtml();
+
+$users = new users();
+$salt = $users->generateSalt();
+$password = $users->hashPlainTextToPassword("", $salt);
+printf("INSERT INTO users VALUES (0, 'admin', '$password', '$salt');");
