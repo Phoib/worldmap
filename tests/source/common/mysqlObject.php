@@ -28,6 +28,11 @@ class mysqlObjectTest extends PHPUnit_Framework_TestCase
     private $mysqlLoader;
 
     /**
+     * @var \MysqlObject    MySQL Object object
+     */
+    private $mysqlObject;
+
+    /**
      * Setup the tests
      */
     public function setUp()

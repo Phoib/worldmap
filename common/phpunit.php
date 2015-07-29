@@ -86,6 +86,22 @@ class phpUnit
         );
         foreach($results as $file => $result) {
             switch($result[0]) {
+                case 'E':
+                    $result = explode("\n", $result);
+                    $stats = explode(",", $result[2]);
+                    $last = sizeof($result);
+                    $resultString = $result[$last-2] . "(" . $result[$last-1] . ")";
+                    unset($result[0]);
+                    unset($result[1]);
+                    unset($result[2]);
+                    unset($result[3]);
+                    unset($result[4]);
+                    unset($result[5]);
+                    unset($result[$last-1]);
+                    unset($result[$last-2]);
+                    $error = implode("<br>", $result);
+                    $preRender[] = array($file, $stats[0], $stats[1], $resultString, $error);
+                    break; 
                 case 'I':
                     $result = explode("\n", $result);
                     $stats = explode(",", $result[2]);

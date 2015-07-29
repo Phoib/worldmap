@@ -17,6 +17,24 @@ class controller extends mysqlObject
     private $collection = array();
 
     /**
+     * Construct a controller object, based on a mysqlObject
+     *
+     * @var string $name    The name of the table to base the MySQL object on
+     * @throws Exception    If the table does not exist, throws an Exception
+     */
+    public function __construct($name = false)
+    {
+        $this->setFromGlobalDB();
+        if($name) {
+            $this->objectName = $name;
+            $this->description = $this->describeTable($name);
+            if(!$this->description) {
+                throw new Exception("Table $name does not exist!");
+            }
+        }
+    }
+
+    /**
      * Adds an object to the collection
      *
      * @param \mysqlObject $mysqlObject
@@ -31,7 +49,7 @@ class controller extends mysqlObject
      *
      * @return array $collection
      */
-    public function returnCollection()
+    public function getCollection()
     {
         return $this->collection;
     }
