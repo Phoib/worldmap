@@ -72,7 +72,7 @@ class usersController extends controller
             $userDetails['username']
         );
         $user['userId'] = $userDetails['id'];
-        $user['username'] = $userdetails['username'];
+        $user['username'] = $userDetails['username'];
         return $user;
     }
 
