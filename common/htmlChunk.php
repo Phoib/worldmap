@@ -28,6 +28,7 @@ class htmlChunk extends html
         'password',
         'radio',
         'reset',
+        'submit',
         'text'
     );
 
@@ -138,6 +139,12 @@ class htmlChunk extends html
         $this->id = $id;
     }
 
+    /**
+     * Adds html under this htmlChunk
+     *
+     * @param mixed     The html to be added
+     * @param string    The name for this html
+     */
     public function addHtml($html, $name = false)
     {
         if($name === false || empty($name)) {

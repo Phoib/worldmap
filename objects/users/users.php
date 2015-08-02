@@ -16,33 +16,61 @@ class users extends model
      */
     const SALT_LENGTH = 32;
 
+    /**
+     * @const int No logged in user, no login details
+     */
+    const NO_USER_NO_LOGIN = -1;
+
+    /**
+     * @const int No logged in user, incorrect login details
+     */
+    const NO_USER_INCORRECT_LOGIN = -2;
+
+    /**
+     * @const string Userlogin action string
+     */
+    const ACTION_LOGIN = 'login';
+
+    /**
+     * Construct a users object
+     */
     public function __construct()
     {
         $this->controller = new usersController("users");
         $this->view       = new usersView();
     }
 
-
-    public function verifyLogin($username, $password)
-    {
-        
-    }
-
-    public function hashPlainTextToPassword($password, $salt)
-    {
-        return hash("sha512",
-            hash("sha512", $password) .
-            hash("sha512", $salt)
-        );
-    }
-
     /**
-     * Generates a salt, based on a const length defined in this class
+     * Verify if there is a user active. There are 3 possible paths:
+     * 1. There is a session active, with a user. This will be used, and user 
+     *    details will be returned.
+     * 2. There are login details provided. These will be checked. If correct,
+     *    the user details will be returned. If not, a specific user, with negative 
+     *    userID, will be returned.
+     * 3. There is no user. A specific user, with negative userID, will be returned.
+     *
+     * @return array    Array with user details
      */
-    public function generateSalt()
+    public function verifySessionOrLogin()
     {
-        $bytes = openssl_random_pseudo_bytes(users::SALT_LENGTH);
-        $hex   = bin2hex($bytes);
-        return $hex;
+        if(isset($_SESSION['userId'])) {
+            $user = $this->controller->checkUserSession();
+        } elseif(isset($_POST['action']) 
+            && $_POST['action'] == self::ACTION_LOGIN
+            && isset($_POST['username'])
+            && isset($_POST['password'])
+        ) {
+           $user = $this->controller->verifyLogin($_POST['username'], $_POST['password']);
+        } else{
+            $user = array(
+                'userId' => self::NO_USER_NO_LOGIN
+            );
+        }
+        return $user;
+    }
+
+    public function printLoginScreen($message = false)
+    {
+        $this->view->printLoginScreen($message);
     }
 }
