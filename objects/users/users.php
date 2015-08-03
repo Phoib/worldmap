@@ -66,6 +66,12 @@ class users extends model
                 'userId' => self::NO_USER_NO_LOGIN
             );
         }
+
+        //If redirect is set in the user, redirect
+        if(isset($user['redirect'])) {
+            $this->view->redirect($user['redirect']);
+        }
+
         return $user;
     }
 

@@ -73,6 +73,7 @@ class usersController extends controller
         );
         $user['userId'] = $userDetails['id'];
         $user['username'] = $userDetails['username'];
+        $user['redirect'] = "index.php";
         return $user;
     }
 

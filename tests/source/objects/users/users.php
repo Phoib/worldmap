@@ -45,6 +45,13 @@ class usersTest extends PHPUnit_Framework_TestCase
         $this->mysqlLoader = new mysqlLoader();
         $this->mysqlLoader->loadSQLFile("tests/sql/objects/users/users.sql");
         $this->users = new users();
+
+        $viewStub = $this->getMockBuilder('usersView')
+                         ->disableOriginalConstructor()
+                         ->getMock();
+        $viewStub->method('redirect')
+                 ->willReturn('Location: index.php');
+        $this->users->setView($viewStub);
     }
 
     /**
@@ -74,14 +81,17 @@ class usersTest extends PHPUnit_Framework_TestCase
         $_POST['password'] = "123test";
         $expected = array(
             "userId" => 1,
-            "username" => "admin"
+            "username" => "admin",
+            "redirect" => "index.php"
         );
+        //@ the header error
         $actual = $this->users->verifySessionOrLogin();
         $this->assertEquals($expected, $actual, "User should be logged in now!");
 
         unset($_POST['action']);
         unset($_POST['username']);
         unset($_POST['password']);
+        unset($expected['redirect']);
         $actual = $this->users->verifySessionOrLogin();
         $this->assertEquals($expected, $actual, "User should have a session now!");
     }
