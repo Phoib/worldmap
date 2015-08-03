@@ -12,10 +12,15 @@
 class usersView extends view
 {
 
+    /**
+     * Print a login page
+     *
+     * @param string $message   Message to be printed on the top
+     * @return string           HTML of login screen
+     */
     public function printLoginScreen($message)
     {
-        $html = new html();
-        $html->head->setTitle("User login");
+        $this->head->setTitle("User login");
 
         $loginForm = htmlChunk::generateForm("index.php", "login", "login");
         $usernameField = htmlChunk::generateInput("text", "username", "username");
@@ -24,6 +29,10 @@ class usersView extends view
         $buttonField = htmlChunk::generateInput("submit", "login", "login", "Login");
 
         $preTable = array(
+            array(
+                "",
+                $message
+            ),
             array(
                 "Username:",
                 $usernameField
@@ -39,11 +48,10 @@ class usersView extends view
         );
         $table = htmlChunk::generateTableFromArray($preTable);
         $loginForm->addHtml($table);
-        $html->addHtml($loginForm);
+        $this->addHtml($loginForm);
 
-
-        $html->render();
-        echo $html->getHtml();
+        $this->render();
+        return $this->getHtml();
     }
 
 }

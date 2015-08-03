@@ -69,8 +69,13 @@ class users extends model
         return $user;
     }
 
+    /**
+     * Tell the view object to return a login screen, which gets echo-ed here.
+     *
+     * @param string $message   Optional message to print at the top
+     */
     public function printLoginScreen($message = false)
     {
-        $this->view->printLoginScreen($message);
+        echo $this->view->printLoginScreen($message);
     }
 }
