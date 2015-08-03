@@ -53,4 +53,3 @@ $html->addHtml($sqlTable);
 
 $html->render();
 echo $html->getHtml();
-
