@@ -38,7 +38,6 @@ class usersControllerTest extends PHPUnit_Framework_TestCase
     public function setUp()
     {
         $_SESSION = array();
-        $_POST = array();
     	global $mysqlDB;
         global $testdatabase;	
     	$mysqlDB->changeDB($testdatabase);
@@ -53,7 +52,6 @@ class usersControllerTest extends PHPUnit_Framework_TestCase
     public function tearDown()
     {
         unset($_SESSION);
-        unset($_POST);
         $this->mysqlLoader->dropTables();
         $this->mysqlObject = null;
         $this->controller = null;
