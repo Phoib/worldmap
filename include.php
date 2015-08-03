@@ -14,7 +14,7 @@ function includeDir($directory)
     $files = scandir($directory);
     foreach ($files as $file) {
         if($file[0] != ".") {
-            if(is_dir($file)) {
+            if(is_dir($directory . "/" . $file)) {
                 includeDir($directory . "/" . $file);
             } else if (substr($file, -4) == ".php") {
                 include_once($directory . "/" . $file); 
@@ -25,6 +25,8 @@ function includeDir($directory)
 
 // Include all common functionalities
 includeDir("common");
+// Include all MVC structures
+includeDir("mvc");
 // Include all MVC structures
 includeDir("objects");
 
