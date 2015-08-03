@@ -100,7 +100,8 @@ class usersControllerTest extends PHPUnit_Framework_TestCase
         $password = '123test';
         $expected = array(
             "userId" => 1,
-            "username" => "admin"
+            "username" => "admin",
+            "redirect" => "index.php"
         );
         $actual = $this->controller->verifyLogin($username, $password);
         $this->assertEquals($expected, $actual, "User should be logged in now!");

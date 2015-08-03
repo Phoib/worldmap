@@ -21,4 +21,15 @@ class view extends html
     {
         $this->head->setTitle($title);
     }
+
+    /**
+     * Redirects the browser to another page. Kills execution.
+     *
+     * @param string    $url    URL to redirect to
+     */
+    public function redirect($url)
+    {
+        header("Location: $url");
+        die();
+    }
 }
