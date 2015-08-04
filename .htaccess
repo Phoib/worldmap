@@ -1,0 +1,10 @@
+RewriteEngine on
+RewriteBase /
+
+RewriteCond %{REQUEST_FILENAME} -s [OR]
+RewriteCond %{REQUEST_FILENAME} -l [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^(.*)$ index.php?params=$1 [NC,L]
+
+
+# based on http://stackoverflow.com/questions/7677070/htaccess-rewrite-get-variables
