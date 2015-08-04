@@ -1,13 +1,13 @@
 <?php
 
 /**
- * This class describes the phpUnit Test object, used to test the phpUnit class
+ * This class describes the index Test object, used to test the index, and associated include code
  *
  * @author     Emiel Suilen
  * @copyright  Derelict Studios
  * @category   tests
  * @package    worldmap
- * @subpackage include
+ * @subpackage index
  */
 class indexTest extends PHPUnit_Framework_TestCase
 {
