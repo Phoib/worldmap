@@ -19,6 +19,8 @@ case users::NO_USER_INCORRECT_LOGIN:
     break;
 }
 
+$game = new game();
+die();
 $phpUnit = new phpUnit("tests/source");
 
 $phpUnit->executeTests();
