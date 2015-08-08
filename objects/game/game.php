@@ -22,7 +22,7 @@ class game extends model
     protected $id;
 
     /**
-     * Construct a users object
+     * Construct a game object, and handle it's printing
      */
     public function __construct()
     {
@@ -31,40 +31,79 @@ class game extends model
 
         $this->game = $this->controller->determineGame();
         $this->id = $this->game['id'];
+
         switch($this->id) {
             case -1:
-                $games = $this->controller->getAllGames();
-                //Move to proper view
-                foreach($games as $game) {
-                    if($game['id'] != $this->id) {
-                        printf("<a href='index.php/%s'>%s</a><br>", $game['key'], $game['name']);
-                    }
-                }
+                $this->handleLinks();
                 break;
             case -2:
-                echo $this->game['name'];
+                $this->handleAdminGame();
                 break;
             case -3:
                 $this->handleDevGame();
                 break;
             default:
-                var_dump($this->game);
+                $this->handleGame();
                 break;
         }        
+        $sqlTable = $this->generateSQLDebugTable();
+        $this->view->addHtml($sqlTable);
+
+        $this->view->render();
+        echo $this->view->getHtml();
     }
 
+    /**
+     * Make sure the selected game is handled properly
+     */
+    private function handleGame()
+    {
+        $games = $this->controller->getAllGames();
+        $this->view->generateLinkScreen($games, $this->id);
+        $this->view->generateGameScreen($this->game);
+    }
+
+    /**
+     * Make sure all links are handled properly
+     */
+    private function handleLinks()
+    {
+        $games = $this->controller->getAllGames();
+        $this->view->generateLinkScreen($games, $this->id);
+    }
+
+    /**
+     * Handle all admin functionalities
+     */
+    private function handleAdminGame()
+    {
+        $games = $this->controller->getAllGames();
+        $this->view->generateLinkScreen($games, $this->id);
+        $this->view->generateAdminScreen();
+    }
+
+    /**
+     * Make sure all development functions are handled
+     */
     private function handleDevGame()
     {
+        $games = $this->controller->getAllGames();
+        $this->view->generateLinkScreen($games, $this->id);
+
         $phpUnit = new phpUnit("tests/source");
 
         $phpUnit->executeTests();
         $testHtml = $phpUnit->returnTable();
 
-        //Move to view
-        $html = new html();
-        $html->head->setTitle("Worldmap tests");
-        $html->addHtml($testHtml);
+        $this->view->generateDevelScreen($testHtml);
+    }
 
+    /**
+     * Generates the SQL Debug table. Moved here for convenience,
+     * should be properly placed later.
+     */
+    private function generateSQLDebugTable()
+    {
         global $mysqlDB;
         $sqlLog = $mysqlDB->getSQLLog();
         $sqlTable = array(
@@ -85,10 +124,6 @@ class game extends model
                 )
             );
         }
-        $sqlTable = htmlChunk::generateTableFromArray($sqlTable, true);
-        $html->addHtml($sqlTable);
-
-        $html->render();
-        echo $html->getHtml();
+        return htmlChunk::generateTableFromArray($sqlTable, true);
     }
 }
