@@ -104,4 +104,22 @@ class htmlChunkTest extends PHPUnit_Framework_TestCase
         $input = htmlChunk::generateInput('bla', 'foo', 'bar');      
     }
 
+    /**
+     * Test the generate link functionality
+     */
+    public function testLink()
+    {
+        $link = htmlChunk::generateLink("test.php", "Test");
+        $actual = $link->render();
+        $expected = "<a href='test.php'>\n  Test\n</a>\n";
+        $this->assertEquals($expected, $actual, "Link does not work");
+    }
+
+    /**
+     * Test the generate base url functionality
+     */
+    public function disabled_testBaseUrl()
+    {
+        //Disabled until a better mechanism is found, eg storing in config
+    }
 }
