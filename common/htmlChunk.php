@@ -296,7 +296,10 @@ class htmlChunk extends html
         );
         array_pop($base);
         $base = array_filter($base);
-        $baseUrl = $_SERVER['REQUEST_SCHEME'] . "://" . $_SERVER['SERVER_NAME'] . implode("/", $base) . "/index.php/";
+        $protocol = $_SERVER['REQUEST_SCHEME'] . "://";
+        $url = $_SERVER['SERVER_NAME'] . "/" . implode("/", $base) . "/index.php/";
+        $url = str_replace("//", "/", $url);
+        $baseUrl = $protocol . $url;
         return $baseUrl;
     }
 }

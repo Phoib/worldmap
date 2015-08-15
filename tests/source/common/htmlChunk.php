@@ -118,8 +118,13 @@ class htmlChunkTest extends PHPUnit_Framework_TestCase
     /**
      * Test the generate base url functionality
      */
-    public function disabled_testBaseUrl()
+    public function testBaseUrl()
     {
-        //Disabled until a better mechanism is found, eg storing in config
+        $_SERVER['REQUEST_SCHEME'] = "http";
+        $_SERVER['SERVER_NAME'] = "localhost";
+
+        $actual = htmlChunk::generateBaseUrl();
+        $expected = "http://localhost/common/index.php/";
+        $this->assertEquals($expected, $actual, "Base URL doesn't work!");
     }
 }
