@@ -133,6 +133,6 @@ class game extends model
                 )
             );
         }
-        return htmlChunk::generateTableFromArray($sqlTable, true);
+        return htmlChunk::generateTableFromArray($sqlTable, true, true);
     }
 }

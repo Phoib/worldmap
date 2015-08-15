@@ -115,7 +115,7 @@ class mysqlDB
         $res = $this->connection->query($sql);
         $now = (int)((microtime(true) - $now)*1000000);
         $memory = (int)((memory_get_usage(true) - $memory)/1024);
-	$statement = "SQL Query: $now usec; $memory Kb; query: [$sql]";
+	    $statement = "SQL Query: $now usec; $memory Kb; query: [$sql]";
         if(get_class($this) == "mysqlDB") {
             $this->appendToLog($statement);
         } else{

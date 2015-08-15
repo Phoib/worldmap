@@ -59,13 +59,17 @@ class gameView extends view
         $baseUrl = htmlChunk::generateBaseUrl();
         $this->setTitle("Worldmap links");
         $table = array();
+        $options = array();
         foreach($games as $game) {
             if($game['id'] != $ignoreId) {
                 $url = $baseUrl . $game['key'];
                 $table[] = array(htmlChunk::generateLink($url, $game['name']));
+                $options[$game['name']] = $game['key'];
             }
         }
         $table = htmlChunk::generateTableFromArray($table);
         $this->addHtml($table);
+        $select = htmlChunk::generateSelect("gameSelect", "gameSelect", $options);
+        $this->addHtml($select);
     }
 }

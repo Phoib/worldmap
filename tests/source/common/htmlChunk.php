@@ -70,6 +70,12 @@ class htmlChunkTest extends PHPUnit_Framework_TestCase
         $expected = "<table>\n  <tr>\n    <th>\n      1\n    </th>\n    <th>\n      2\n    </th>\n  </tr>\n  <tr>\n    <td>\n      foo\n    </td>\n    <td>\n      bar\n    </td>\n  </tr>\n</table>\n";
         $actual = $html->render(0);
         $this->assertEquals($expected, $actual, "Table header not rendered properly!");
+
+        $html = htmlChunk::generateTableFromArray($table, true, true);
+        $expected = "<table border='1'>\n  <tr>\n    <th>\n      1\n    </th>\n    <th>\n      2\n    </th>\n  </tr>\n  <tr>\n    <td>\n      foo\n    </td>\n    <td>\n      bar\n    </td>\n  </tr>\n</table>\n";
+        $actual = $html->render(0);
+        $this->assertEquals($expected, $actual, "Table border not rendered properly!");
+
     }
 
     /**

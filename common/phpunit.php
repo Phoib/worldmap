@@ -140,7 +140,7 @@ class phpUnit
             }
         }
         $preRender[] = array($this->versionInfo);
-        return htmlChunk::generateTableFromArray($preRender, true);
+        return htmlChunk::generateTableFromArray($preRender, true, true);
     }
 
     /**
