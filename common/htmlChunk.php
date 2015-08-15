@@ -19,6 +19,7 @@ class htmlChunk extends html
     const TABLEROW    = "tr";
     const TABLEHEADER = "th";
     const TABLECELL   = "td";
+    const LINK        = "a";
     const INPUTTYPES  = array(
         'text',
         'button',
@@ -266,5 +267,39 @@ class htmlChunk extends html
             $settings['value'] = $value;
         }
         return new htmlChunk(htmlChunk::INPUT, $name, $id, $settings);
+    }
+
+    /**
+     * Generate a HTML Link
+     *
+     * @param string    $url    The address to link to
+     * @param string    $text   The text of the link
+     * @return \htmlChunk       The htmlChunk with the hyperlink
+     */
+    public static function generateLink($url, $text)
+    {
+        $settings = array(
+            'href' => $url
+        );
+        $link = new htmlChunk(htmlChunk::LINK, false, false, $settings);
+        $link->addHtml($text);
+        return $link;
+    }
+
+    /**
+     * Generate a base URL
+     */
+    public static function generateBaseUrl()
+    {
+        $base = explode("/",
+            str_replace("/index.php", "", $_SERVER["PHP_SELF"])
+        );
+        array_pop($base);
+        $base = array_filter($base);
+        $protocol = $_SERVER['REQUEST_SCHEME'] . "://";
+        $url = $_SERVER['SERVER_NAME'] . "/" . implode("/", $base) . "/index.php/";
+        $url = str_replace("//", "/", $url);
+        $baseUrl = $protocol . $url;
+        return $baseUrl;
     }
 }

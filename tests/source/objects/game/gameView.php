@@ -1,0 +1,106 @@
+<?php
+
+/**
+ * This class describes the gameView Test object, used to test the gameView class
+ *
+ * @author     Emiel Suilen
+ * @copyright  Derelict Studios
+ * @category   tests
+ * @package    worldmap
+ * @subpackage objects
+ */
+class gameViewTest extends PHPUnit_Framework_TestCase
+{
+
+    /**
+     * @var \gameView  gameView object
+     */
+    private $view;
+
+    /**
+     * Setup the tests
+     */
+    public function setUp()
+    {
+        $this->view = new gameView();
+    }
+
+    /**
+     * Destroy the tests
+     */
+    public function tearDown()
+    {
+        $this->view = null;
+    }
+
+    /**
+     * Test generate Devel Screen
+     */
+    public function test_generateDevelScreen()
+    {
+        $testHTML = "test";
+        $expected = "<!DOCTYPE html>\n<html lang='en'>\n  <head>\n    <title>Worldmap tests</title>\n  </head>\n  <body>\n    test\n  </body>\n</html>";
+        $this->view->generateDevelScreen($testHTML);
+        $this->view->render();
+        $actual = $this->view->getHtml();
+        $this->assertEquals($expected, $actual, "The development screen was not rendered properly");
+    }
+
+    /**
+     * Test generate Admin Screen
+     */
+    public function test_generateAdminScreen()
+    {
+        $expected = "<!DOCTYPE html>\n<html lang='en'>\n  <head>\n    <title>Worldmap admin</title>\n  </head>\n  <body>\n    Here will be admin functionality\n  </body>\n</html>";
+        $this->view->generateAdminScreen();
+        $this->view->render();
+        $actual = $this->view->getHtml();
+        $this->assertEquals($expected, $actual, "The admin screen was not rendered properly");
+    }
+
+    /**
+     * Test generate game Screen
+     */
+    public function test_generateGameScreen()
+    {
+        $game = array(
+            "id" => 1,
+            "name" => "Test",
+            "key" => "test"
+        );
+        $expected = "<!DOCTYPE html>\n<html lang='en'>\n  <head>\n    <title>Test</title>\n  </head>\n  <body>\n    <table>\n      <tr>\n        <td>\n          id\n        </td>\n        <td>\n          1\n        </td>\n      </tr>\n      <tr>\n        <td>\n          name\n        </td>\n        <td>\n          Test\n        </td>\n      </tr>\n      <tr>\n        <td>\n          key\n        </td>\n        <td>\n          test\n        </td>\n      </tr>\n    </table>\n  </body>\n</html>";
+        $this->view->generateGameScreen($game);
+        $this->view->render();
+        $actual = $this->view->getHtml();
+        $this->assertEquals($expected, $actual, "The game screen was not rendered properly");
+    }
+
+    /**
+     * Test generate link Screen
+     */
+    public function test_generateLinkScreen()
+    {
+        $_SERVER['REQUEST_SCHEME'] = "http";
+        $_SERVER['SERVER_NAME'] = "localhost";
+
+        $games = array(
+            array(
+                "id" => 1,
+                "name" => "Test",
+                "key" => "test"
+            ),
+            array(
+                "id" => 2,
+                "name" => "Do not show me",
+                "key" => "nope"
+            ),
+        );
+        $expected = "<!DOCTYPE html>\n<html lang='en'>\n  <head>\n    <title>Worldmap links</title>\n  </head>\n  <body>\n    <table>\n      <tr>\n        <td>\n          <a href='http://localhost/common/index.php/test'>\n            Test\n          </a>\n        </td>\n      </tr>\n    </table>\n  </body>\n</html>";
+        $this->view->generateLinkScreen($games, 2);
+        $this->view->render();
+        $actual = $this->view->getHtml();
+        $this->assertEquals($expected, $actual, "The link screen was not rendered properly");
+    }
+
+
+}

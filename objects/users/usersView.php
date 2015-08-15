@@ -20,7 +20,7 @@ class usersView extends view
      */
     public function printLoginScreen($message)
     {
-        $this->head->setTitle("User login");
+        $this->setTitle("User login");
 
         $loginForm = htmlChunk::generateForm("index.php", "login", "login");
         $usernameField = htmlChunk::generateInput("text", "username", "username");
