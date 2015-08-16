@@ -20,6 +20,8 @@ class htmlChunk extends html
     const TABLEHEADER = "th";
     const TABLECELL   = "td";
     const LINK        = "a";
+    const SELECT      = "select";
+    const OPTION      = "option";
     const INPUTTYPES  = array(
         'text',
         'button',
@@ -181,6 +183,14 @@ class htmlChunk extends html
         foreach($this->contents as $content) {
             if(is_object($content)) {
                 $html .= $content->render($indentLevel+1);
+            } elseif(is_array($content)) {
+                foreach($content as $contentPiece) {
+                    if(is_object($contentPiece)) {
+                        $html .= $contentPiece->render($indentLevel+1);
+                    } else{
+                        $html .= $indentation . "  " . $contentPiece . "\n";
+                    }
+                }
             } else{
                 $html .= $indentation . "  " . $content . "\n";
             }
@@ -199,9 +209,13 @@ class htmlChunk extends html
      * @param bool  $header Optional parameter, defines if the first row should be a header
      * @return \htmlChunk   A table htmlChunk
      */
-    public static function generateTableFromArray($array, $header = false)
+    public static function generateTableFromArray($array, $header = false, $border = false)
     {
-        $table = new htmlChunk(htmlChunk::TABLE);
+        $settings = array();
+        if($border) {
+            $settings['border'] = 1;
+        }
+        $table = new htmlChunk(htmlChunk::TABLE, false, false, $settings);
         foreach($array as $row) {
             $rowChunk = new htmlChunk(htmlChunk::TABLEROW);
             if($header) {
@@ -301,5 +315,37 @@ class htmlChunk extends html
         $url = str_replace("//", "/", $url);
         $baseUrl = $protocol . $url;
         return $baseUrl;
+    }
+
+    /**
+     * Generates a select box
+     */
+    public static function generateSelect($name, $id, $options, $onselect = false)
+    {
+        $settings = array();
+        if($onselect) {
+            $settings['onselect'] = $onselect;
+        }
+        $select = new htmlChunk(htmlChunk::SELECT, $name, $id, $settings);
+        $htmlOptions = array();
+        foreach($options as $name => $value) {
+            $htmlOptions[] = self::generateOption($name, $value);
+        }
+        $select->addHtml($htmlOptions);
+        return $select;
+    }
+
+    /**
+     * Generates an option field
+     */
+    public static function generateOption($name, $value=false)
+    {
+        $settings = array();
+        if($value) {
+            $settings = array('value' => $value);
+        }
+        $option = new htmlChunk(htmlChunk::OPTION, false, false, $settings);
+        $option->addHtml($name);
+        return $option;
     }
 }
