@@ -26,6 +26,11 @@ class phpUnit
     private $testCases = array();
 
     /**
+     * @var int Total execution time of tests
+     */
+    private $executionTime = 0;
+
+    /**
      * Construct the phpUnit class, based on a directory
      *
      * @param string $directory Directory to scan the tests in
@@ -139,7 +144,7 @@ class phpUnit
                     break;
             }
         }
-        $preRender[] = array($this->versionInfo);
+        $preRender[] = array($this->versionInfo, "Time: {$this->executionTime} ms");
         return htmlChunk::generateTableFromArray($preRender, true, true);
     }
 
@@ -148,9 +153,11 @@ class phpUnit
      */
     public function executeTests()
     {
+        $start = microtime(true);
         foreach($this->testCases as $testLocation => &$command) {
             $command = `$command`;
             $command = trim(trim(trim(str_replace($this->versionInfo, "", $command)), "."));
         }
+        $this->executionTime = (int)((microtime(true) - $start) * 1000);
     }
 }

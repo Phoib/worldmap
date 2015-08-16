@@ -133,4 +133,37 @@ class htmlChunkTest extends PHPUnit_Framework_TestCase
         $expected = "http://localhost/common/index.php/";
         $this->assertEquals($expected, $actual, "Base URL doesn't work!");
     }
+
+    /**
+     * Tests the generate option functionality
+     */
+    public function testGenerateOption()
+    {
+        $option = htmlChunk::generateOption("name");
+        $actual = $option->render();
+        $expected = "<option>\n  name\n</option>\n";
+        $this->assertEquals($expected, $actual, "Basic option without value not rendered correctly!");
+
+        $option = htmlChunk::generateOption("name", "value");
+        $actual = $option->render();
+        $expected = "<option value='value'>\n  name\n</option>\n";
+        $this->assertEquals($expected, $actual, "Option with value not rendered correctly!");
+    }
+
+    /**
+     * Tests the generate select functionality
+     */
+    public function testGenerateSelect()
+    {
+        $options = array("a", "b", "c");
+        $select = htmlChunk::generateSelect("name", "id", $options);
+        $actual = $select->render();
+        $expected = "<select name='name' id='id'>\n  <option value='a'>\n    0\n  </option>\n  <option value='b'>\n    1\n  </option>\n  <option value='c'>\n    2\n  </option>\n</select>\n";
+        $this->assertEquals($expected, $actual, "Select without onselect is not rendered properly!");
+
+        $select = htmlChunk::generateSelect("name", "id", $options, "changeGame(this)");
+        $actual = $select->render();
+        $expected = "<select name='name' id='id' onselect='changeGame(this)'>\n  <option value='a'>\n    0\n  </option>\n  <option value='b'>\n    1\n  </option>\n  <option value='c'>\n    2\n  </option>\n</select>\n";
+        $this->assertEquals($expected, $actual, "Select with onselect is not rendered properly!");
+    }
 }
