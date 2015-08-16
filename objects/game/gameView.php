@@ -57,15 +57,24 @@ class gameView extends view
     public function generateLinkScreen($games, $ignoreId)
     {
         $baseUrl = htmlChunk::generateBaseUrl();
+        $javascript = sprintf("
+            function selectGame(obj) {
+                var urlString = '%s';
+                var selectedGame = obj.options[obj.selectedIndex];
+                if (selectedGame != '') {
+                    window.location = urlString + selectedGame.value;
+                }
+            }"
+        , $baseUrl);
         $this->setTitle("Worldmap links");
-        $table = array();
+        $this->setJavascript($javascript);
+        $options = array("Select a game" => "");
         foreach($games as $game) {
             if($game['id'] != $ignoreId) {
-                $url = $baseUrl . $game['key'];
-                $table[] = array(htmlChunk::generateLink($url, $game['name']));
+                $options[$game['name']] = $game['key'];
             }
         }
-        $table = htmlChunk::generateTableFromArray($table);
-        $this->addHtml($table);
+        $select = htmlChunk::generateSelect("gameSelect", "gameSelect", $options, "selectGame(this)");
+        $this->addHtml($select);
     }
 }

@@ -320,11 +320,11 @@ class htmlChunk extends html
     /**
      * Generates a select box
      */
-    public static function generateSelect($name, $id, $options, $onselect = false)
+    public static function generateSelect($name, $id, $options, $onchange = false)
     {
         $settings = array();
-        if($onselect) {
-            $settings['onselect'] = $onselect;
+        if($onchange) {
+            $settings['onchange'] = $onchange;
         }
         $select = new htmlChunk(htmlChunk::SELECT, $name, $id, $settings);
         $htmlOptions = array();

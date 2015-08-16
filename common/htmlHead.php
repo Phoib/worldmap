@@ -13,12 +13,19 @@ class htmlHead extends html
 {
 
     /**
-     * Title of the HTML page
+     * @var string Title of the HTML page
      */
-    private $title = "";
+    private $title;
+
+    /**
+     * @var string Holds printable javascript code
+     */
+    private $printableJavascript;
 
     public function __construct()
     {
+        $this->title = "";
+        $this->printableJavascript = false;
     }
 
     /**
@@ -31,7 +38,6 @@ class htmlHead extends html
         return $this->title;
     }
 
-
     /**
      * Sets the title
      *
@@ -43,14 +49,49 @@ class htmlHead extends html
     }
 
     /**
+     * Gets the javascript
+     *
+     * @return string
+     */
+    public function getJavascript()
+    {
+        return $this->printableJavascript;
+    }
+
+    /**
+     * Sets the javascript
+     *
+     * @param string $javascript The entire javascript for the HTML page
+     */
+    public function setJavascript($javascript)
+    {
+        $this->printableJavascript = $javascript;
+    }
+
+    /**
+     * Adds javascript
+     *
+     * @param string $javascript The javascript to be added
+     */
+    public function addJavascript($javascript)
+    {
+        $this->printableJavascript .= $javascript;
+    }
+
+    /**
      * Renders the html for the head
      *
      * @return string The rendered html
      */
     public function render()
     {
-        $html = sprintf("  <head>\n    <title>%s</title>\n  </head>\n",
+        $html = sprintf("  <head>\n    <title>%s</title>\n",
             $this->title);
+        if($this->printableJavascript) {
+            $html .= sprintf("    <script type='text/javascript'>\n%s\n    </script>\n", 
+                $this->printableJavascript);
+        }
+        $html .= "  </head>\n";
         return $html;
     }
 

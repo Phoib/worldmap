@@ -95,7 +95,7 @@ class gameViewTest extends PHPUnit_Framework_TestCase
                 "key" => "nope"
             ),
         );
-        $expected = "<!DOCTYPE html>\n<html lang='en'>\n  <head>\n    <title>Worldmap links</title>\n  </head>\n  <body>\n    <table>\n      <tr>\n        <td>\n          <a href='http://localhost/common/index.php/test'>\n            Test\n          </a>\n        </td>\n      </tr>\n    </table>\n  </body>\n</html>";
+        $expected = "<!DOCTYPE html>\n<html lang='en'>\n  <head>\n    <title>Worldmap links</title>\n    <script type='text/javascript'>\n\n            function selectGame(obj) {\n                var urlString = 'http://localhost/common/index.php/';\n                var selectedGame = obj.options[obj.selectedIndex];\n                if (selectedGame != '') {\n                    window.location = urlString + selectedGame.value;\n                }\n            }\n    </script>\n  </head>\n  <body>\n    <select name='gameSelect' id='gameSelect' onchange='selectGame(this)'>\n      <option>\n        Select a game\n      </option>\n      <option value='test'>\n        Test\n      </option>\n    </select>\n  </body>\n</html>";
         $this->view->generateLinkScreen($games, 2);
         $this->view->render();
         $actual = $this->view->getHtml();
