@@ -25,6 +25,11 @@ class htmlHeadTest extends PHPUnit_Framework_TestCase
         $htmlHead->setTitle($title);
         $actual = $htmlHead->getTitle();
         $this->assertEquals($title, $actual, "Title was not set!");
+
+        $javascript = "alert('test')";
+        $htmlHead->setJavascript($javascript);
+        $actual = $htmlHead->getJavascript();
+        $this->assertEquals($javascript, $actual, "Javascript was not set!");
     }
 
     /**
@@ -42,6 +47,12 @@ class htmlHeadTest extends PHPUnit_Framework_TestCase
         $expected = "  <head>\n    <title>$title</title>\n  </head>\n";
         $actual = $htmlHead->render();
         $this->assertEquals($expected, $actual, "HTML head does not have an empty title!");
+
+        $javascript = "alert('test')";
+        $htmlHead->setJavascript($javascript);
+        $expected = "  <head>\n    <title>$title</title>\n    <script type='text/javascript'>\n$javascript\n    </script>\n  </head>\n";
+        $actual = $htmlHead->render();
+        $this->assertEquals($expected, $actual, "HTML head does not have javascript!");
     }
 
 }
