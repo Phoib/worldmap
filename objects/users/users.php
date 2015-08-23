@@ -32,6 +32,11 @@ class users extends model
     const ACTION_LOGIN = 'login';
 
     /**
+     * @const string Userlogout action string
+     */
+    const ACTION_LOGOUT = 'logout';
+
+    /**
      * Construct a users object
      */
     public function __construct()
@@ -53,6 +58,12 @@ class users extends model
      */
     public function verifySessionOrLogin()
     {
+        if(isset($_GET['menu']) && $_GET['menu'] == self::ACTION_LOGOUT) {
+            $this->controller->logout();
+            $url = substr(htmlChunk::generateBaseUrl(), 0, -1);
+            $this->view->redirect($url);
+            die();
+        }
         if(isset($_SESSION['userId'])) {
             $user = $this->controller->checkUserSession();
         } elseif(isset($_POST['action']) 

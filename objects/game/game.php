@@ -32,6 +32,13 @@ class game extends model
         $this->game = $this->controller->determineGame();
         $this->id = $this->game['id'];
 
+        $menu = new menu();
+        $menuHtml = $menu->returnMenu($this->id, $this->game['key']);
+        $this->view->addHtml($menuHtml);
+
+        $games = $this->controller->getAllGames();
+        $this->view->generateLinkScreen($games, $this->id);
+
         switch($this->id) {
             case -1:
                 $this->handleLinks();
@@ -67,8 +74,6 @@ class game extends model
      */
     protected function handleGame()
     {
-        $games = $this->controller->getAllGames();
-        $this->view->generateLinkScreen($games, $this->id);
         $this->view->generateGameScreen($this->game);
     }
 
@@ -77,8 +82,6 @@ class game extends model
      */
     protected function handleLinks()
     {
-        $games = $this->controller->getAllGames();
-        $this->view->generateLinkScreen($games, $this->id);
     }
 
     /**
@@ -86,8 +89,6 @@ class game extends model
      */
     protected function handleAdminGame()
     {
-        $games = $this->controller->getAllGames();
-        $this->view->generateLinkScreen($games, $this->id);
         $this->view->generateAdminScreen();
     }
 
@@ -96,9 +97,6 @@ class game extends model
      */
     protected function handleDevGame()
     {
-        $games = $this->controller->getAllGames();
-        $this->view->generateLinkScreen($games, $this->id);
-
         $phpUnit = new phpUnit("tests/source");
 
         $phpUnit->executeTests();
