@@ -12,6 +12,15 @@
 class usersController extends controller
 {
     /**
+     * Log a user out
+     */
+    public function logout()
+    {
+        session_unset();
+        session_destroy();
+    }
+
+    /**
      * Verify if a session has the correct details
      *
      * @return array    Array with user details

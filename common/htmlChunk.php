@@ -305,13 +305,10 @@ class htmlChunk extends html
      */
     public static function generateBaseUrl()
     {
-        $base = explode("/",
-            str_replace("/index.php", "", $_SERVER["PHP_SELF"])
-        );
-        array_pop($base);
-        $base = array_filter($base);
+        $indexPos = strpos($_SERVER["PHP_SELF"], "index.php");
+        $base = substr($_SERVER["PHP_SELF"], 0, $indexPos);
         $protocol = $_SERVER['REQUEST_SCHEME'] . "://";
-        $url = $_SERVER['SERVER_NAME'] . "/" . implode("/", $base) . "/index.php/";
+        $url = $_SERVER['SERVER_NAME'] . $base . "/index.php/";
         $url = str_replace("//", "/", $url);
         $baseUrl = $protocol . $url;
         return $baseUrl;

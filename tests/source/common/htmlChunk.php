@@ -130,7 +130,7 @@ class htmlChunkTest extends PHPUnit_Framework_TestCase
         $_SERVER['SERVER_NAME'] = "localhost";
 
         $actual = htmlChunk::generateBaseUrl();
-        $expected = "http://localhost/common/index.php/";
+        $expected = "http://localhost/index.php/";
         $this->assertEquals($expected, $actual, "Base URL doesn't work!");
     }
 
