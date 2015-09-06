@@ -31,13 +31,12 @@ class game extends model
 
         $this->game = $this->controller->determineGame();
         $this->id = $this->game['id'];
-
-        $menu = new menu();
-        $menuHtml = $menu->returnMenu($this->id, $this->game['key']);
-        $this->view->addHtml($menuHtml);
+        $this->view->setGameKey($this->game['key']);
 
         $games = $this->controller->getAllGames();
-        $this->view->generateLinkScreen($games, $this->id);
+        $menu = new menu();
+        $menuHtml = $menu->returnMenu($this->id, $this->game['key'], $games);
+        $this->view->addHtml($menuHtml);
 
         switch($this->id) {
             case -1:
@@ -82,6 +81,7 @@ class game extends model
      */
     protected function handleLinks()
     {
+        $this->view->generateLinkScreen($games, $this->id);
     }
 
     /**
@@ -89,7 +89,20 @@ class game extends model
      */
     protected function handleAdminGame()
     {
-        $this->view->generateAdminScreen();
+        switch($_GET['menu']) {
+        case 'game':
+            if(isset($_GET['id'])) {
+                $game = $this->controller->getGame($_GET['id']);
+                $this->view->editGame($game);
+            } else{
+                $games = $this->controller->getAllGames();
+                $this->view->generateGameEditScreen($games);
+            }
+        break;
+        default:
+            $this->view->generateAdminScreen();
+        break;
+        }
     }
 
     /**

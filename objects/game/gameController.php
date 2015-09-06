@@ -31,6 +31,11 @@ class gameController extends controller
         return $this->getById("game", -1);
     }
 
+    public function getGame($id)
+    {
+        return $this->getById("game", $id);
+    }
+
     /**
      * Return all the games
      *

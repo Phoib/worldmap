@@ -19,10 +19,14 @@ class menuView extends view
      *
      * @return  \htmlChunk  htmlChunk with the menu
      */
-    public function createHtmlMenu($menuItems, $gameName)
+    public function createHtmlMenu($menuItems, $gameName, $gameId, $games)
     {
         $baseUrl = htmlChunk::generateBaseUrl();
         $menu = array(array());
+        $gameMenu = gameView::returnLinkScreen($games, $gameId);
+        $this->setJavascript($gameMenu['javascript']);        
+        $menu[0][] = $gameMenu['select'];
+
         foreach($menuItems as $item) {
             $link = $baseUrl . $gameName . "/menu/" . $item['key'];
             $menu[0][] = htmlChunk::generateLink($link, $item['name']);
