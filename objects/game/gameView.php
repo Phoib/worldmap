@@ -106,7 +106,7 @@ class gameView extends view
         $text = "Please select a game to edit";
         $baseUrl = htmlChunk::generateBaseUrl() . $this->gameKey . "/menu/game/";
 
-        $newLink = htmlChunk::generateLink($baseUrl . "id/0", "New");
+        $newLink = htmlChunk::generateLink($baseUrl . "id/new", "New");
         $table = array(array($text, $newLink));
         foreach ($games as $game) {
             $url = $baseUrl . "id/" . $game['id'];
@@ -120,6 +120,10 @@ class gameView extends view
 
     public function editGame($game) 
     {
+        $action = "editGame";
+        if($_GET['id'] == 'new') {
+            $action = 'newGame';
+        }
         $table = array(
             array(
                 "Name",
@@ -132,13 +136,14 @@ class gameView extends view
             array(
                 htmlChunk::generateInput("submit", "submit", "submit", "Save"),
                 htmlChunk::generateInput("submit", "cancel", "cancel", "Cancel"),
-                htmlChunk::generateInput("hidden", "id", "id", $game['id'])
+                htmlChunk::generateInput("hidden", "id", "id", $game['id']),
+                htmlChunk::generateInput("hidden", "action", "action", $action),
             )                
         );
         $table = htmlChunk::generateTableFromArray($table);
 
         $baseUrl = htmlChunk::generateBaseUrl() . $this->gameKey . "/menu/game/";
-        $form = htmlChunk::generateForm($baseUrl, "editGame", "editGame");
+        $form = htmlChunk::generateForm($baseUrl, $action, $action);
         $form->addHtml($table);
         $this->addHtml($form);
     }

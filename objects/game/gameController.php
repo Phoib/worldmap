@@ -46,4 +46,46 @@ class gameController extends controller
         return $this->getWholeTable("game");
     }
 
+    public function handleAdminPost()
+    {
+        if(!isset($_POST['action'])) {
+            return;
+        }
+        switch($_POST['action']) {
+        case 'editGame':
+            $sql = sprintf("SELECT * FROM game WHERE `key` = '%s' AND id != %d", 
+                $this->sanitize($_POST['key']),
+                $_POST['id']);
+            $game = $this->getRow($sql);
+            if($game) {
+                return -1;
+            }
+            $game = array(
+                'key' => $_POST['key'],
+                'name' => $_POST['name'],
+                'id' => $_POST['id']
+            );
+            $success = $this->update($game, 'id');
+            if($success) {
+                return game::CHANGE_MENU;
+            }
+        break;
+        case 'newGame':
+             $sql = sprintf("SELECT * FROM game WHERE `key` = '%s'", 
+                $this->sanitize($_POST['key']));
+            $game = $this->getRow($sql);
+            if($game) {
+                return -1;
+            }
+            $game = new mysqlObject("game");
+            $values = array(
+                "key" => $this->sanitize($_POST['key']),
+                "name" => $this->sanitize($_POST['name']));
+            $game->insert($values);
+            return game::CHANGE_MENU;
+        break;
+        default:
+            return;
+        }
+    }
 }

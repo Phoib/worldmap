@@ -11,6 +11,8 @@
  */
 class game extends model
 {
+    const CHANGE_MENU = 2;
+
     /**
      * @var array $game
      */
@@ -36,7 +38,8 @@ class game extends model
         $games = $this->controller->getAllGames();
         $menu = new menu();
         $menuHtml = $menu->returnMenu($this->id, $this->game['key'], $games);
-        $this->view->addHtml($menuHtml);
+        $this->view->addHtml($menuHtml['menu'], 'menu');
+        $this->view->setJavascript($menuHtml['javascript']);
 
         switch($this->id) {
             case -1:
@@ -81,7 +84,6 @@ class game extends model
      */
     protected function handleLinks()
     {
-        $this->view->generateLinkScreen($games, $this->id);
     }
 
     /**
@@ -89,6 +91,20 @@ class game extends model
      */
     protected function handleAdminGame()
     {
+        if(!empty($_POST)) {
+            $return = $this->controller->handleAdminPost();
+            switch($return) {
+            case self::CHANGE_MENU:
+                $games = $this->controller->getAllGames();
+                $menu = new menu();
+                $menuHtml = $menu->returnMenu($this->id, $this->game['key'], $games);
+                $this->view->addHtml($menuHtml['menu'], 'menu');
+            break;
+            }
+        }
+        if(!isset($_GET['menu'])) {
+            $_GET['menu'] = "";
+        }   
         switch($_GET['menu']) {
         case 'game':
             if(isset($_GET['id'])) {
