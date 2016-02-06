@@ -30,8 +30,9 @@ class menuView extends view
             $link = $baseUrl . $gameName . "/menu/" . $item['key'];
             $menu[0][] = htmlChunk::generateLink($link, $item['name']);
         }
-        $return = array('javascript' => $gameMenu['javascript']);
-        $return['menu'] = htmlChunk::generateTableFromArray($menu);
-        return $return;
+        return array(
+            'javascript' => $gameMenu['javascript'],
+            'menu' => htmlChunk::generateTableFromArray($menu)
+        );
     }
 }

@@ -12,6 +12,7 @@
 class game extends model
 {
     const CHANGE_MENU = 2;
+    const KEY_EXISTS  = -1;
 
     /**
      * @var array $game
@@ -99,7 +100,16 @@ class game extends model
                 $menu = new menu();
                 $menuHtml = $menu->returnMenu($this->id, $this->game['key'], $games);
                 $this->view->addHtml($menuHtml['menu'], 'menu');
-            break;
+                break;
+            case static::KEY_EXISTS:
+                $game = array(
+                    'name' => $_POST['name'],
+                    'warning' => static::KEY_EXISTS
+                );
+                $_GET['id'] = 'new';
+                $this->view->editGame($game);
+                return;
+                break;
             }
         }
         if(!isset($_GET['menu'])) {

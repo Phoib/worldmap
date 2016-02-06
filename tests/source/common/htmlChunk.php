@@ -122,6 +122,17 @@ class htmlChunkTest extends PHPUnit_Framework_TestCase
     }
 
     /**
+     * Test the bold text functionality
+     */
+    public function testBold()
+    {
+        $bold = htmlChunk::generateBold("bold");
+        $actual = $bold->render();
+        $expected = "<b>\n  bold\n</b>\n";
+        $this->assertEquals($expected, $actual, "Bold does not work");
+    }
+
+    /**
      * Test the generate base url functionality
      */
     public function testBaseUrl()

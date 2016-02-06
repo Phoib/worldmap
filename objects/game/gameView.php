@@ -128,17 +128,25 @@ class gameView extends view
             array(
                 "Name",
                 htmlChunk::generateInput("text", "name", "name", $game['name'])
-            ),
-            array(
+            )
+        );
+        if (key_exists('warning', $game) && $game['warning'] == game::KEY_EXISTS) {
+            $table[] = array(
+                "Key",
+                htmlChunk::generateInput("text", "key", "key", $game['key']),
+                htmlChunk::generateBold("Warning, key exists!") 
+            );
+        } else{
+            $table[] = array(
                 "Key",
                 htmlChunk::generateInput("text", "key", "key", $game['key'])
-            ),
-            array(
-                htmlChunk::generateInput("submit", "submit", "submit", "Save"),
-                htmlChunk::generateInput("submit", "cancel", "cancel", "Cancel"),
-                htmlChunk::generateInput("hidden", "id", "id", $game['id']),
-                htmlChunk::generateInput("hidden", "action", "action", $action),
-            )                
+            );
+        }
+        $table[] = array(
+            htmlChunk::generateInput("submit", "submit", "submit", "Save"),
+            htmlChunk::generateInput("submit", "cancel", "cancel", "Cancel"),
+            htmlChunk::generateInput("hidden", "id", "id", $game['id']),
+            htmlChunk::generateInput("hidden", "action", "action", $action),
         );
         $table = htmlChunk::generateTableFromArray($table);
 

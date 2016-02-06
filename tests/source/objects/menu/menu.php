@@ -63,50 +63,14 @@ class menuTest extends PHPUnit_Framework_TestCase
     /**
      * Get the normal menu screen
      */
-    public function testOnlyLogout()
+    public function testMenu()
     {
         $game = -1;
         $gameName = "selection";
         $menu = new menu();
-        $htmlChunk = $menu->returnMenu($game, $gameName, array());
-        $actual = $htmlChunk->render();
-        $expected = "<table>\n  <tr>\n    <td>\n      <a href='http://localhost/index.php/selection/menu/logout'>\n        Logout\n      </a>\n    </td>\n  </tr>\n</table>\n";
+        $menuParts = $menu->returnMenu($game, $gameName, array());
+        $actual = array_keys($menuParts);
+        $expected = array("javascript", "menu");
         $this->assertEquals($expected, $actual, "Logout was not rendered properly!");
-    }
-
-    /**
-     * Get the admin menu screen
-     */
-    public function testAdminMenu()
-    {
-        $game = -2;
-        $gameName = "admin";
-        $menu = new menu();
-        $htmlChunk = $menu->returnMenu($game, $gameName);
-        $actual = $htmlChunk->render();
-        $expected = "<table>\n  <tr>\n" .
-            "    <td>\n      <a href='http://localhost/index.php/admin/menu/game'>\n        Game creator\n      </a>\n    </td>\n" .
-            "    <td>\n      <a href='http://localhost/index.php/admin/menu/user'>\n        Users editor\n      </a>\n    </td>\n" .
-            "    <td>\n      <a href='http://localhost/index.php/admin/menu/logout'>\n        Logout\n      </a>\n    </td>\n" .
-            "  </tr>\n</table>\n";
-        $this->assertEquals($expected, $actual, "Admin screen was not rendered properly!");
-    }
-
-    /**
-     * Test the devel screen
-     */
-    public function testDevelMenu()
-    {
-        $game = -3;
-        $gameName = "devel";
-        $menu = new menu();
-        $htmlChunk = $menu->returnMenu($game, $gameName);
-        $actual = $htmlChunk->render();
-        $expected = "<table>\n  <tr>\n" .
-            "    <td>\n      <a href='http://localhost/index.php/devel/menu/test'>\n        Testsuite\n      </a>\n    </td>\n" .
-            "    <td>\n      <a href='http://localhost/index.php/devel/menu/install'>\n        Installer creator\n      </a>\n    </td>\n" .
-            "    <td>\n      <a href='http://localhost/index.php/devel/menu/logout'>\n        Logout\n      </a>\n    </td>\n" .
-            "  </tr>\n</table>\n";
-        $this->assertEquals($expected, $actual, "Devel screen was not rendered properly!");
     }
 }

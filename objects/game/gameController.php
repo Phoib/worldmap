@@ -58,7 +58,7 @@ class gameController extends controller
                 $_POST['id']);
             $game = $this->getRow($sql);
             if($game) {
-                return -1;
+                return game::KEY_EXISTS;
             }
             $game = array(
                 'key' => $_POST['key'],
@@ -75,7 +75,7 @@ class gameController extends controller
                 $this->sanitize($_POST['key']));
             $game = $this->getRow($sql);
             if($game) {
-                return -1;
+                return game::KEY_EXISTS;
             }
             $game = new mysqlObject("game");
             $values = array(
