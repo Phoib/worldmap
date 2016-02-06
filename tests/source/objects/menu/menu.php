@@ -68,7 +68,7 @@ class menuTest extends PHPUnit_Framework_TestCase
         $game = -1;
         $gameName = "selection";
         $menu = new menu();
-        $htmlChunk = $menu->returnMenu($game, $gameName);
+        $htmlChunk = $menu->returnMenu($game, $gameName, array());
         $actual = $htmlChunk->render();
         $expected = "<table>\n  <tr>\n    <td>\n      <a href='http://localhost/index.php/selection/menu/logout'>\n        Logout\n      </a>\n    </td>\n  </tr>\n</table>\n";
         $this->assertEquals($expected, $actual, "Logout was not rendered properly!");
