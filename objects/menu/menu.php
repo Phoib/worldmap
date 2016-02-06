@@ -23,13 +23,15 @@ class menu extends model
     /**
      * Returns html chunk for the desired menu
      *
-     * @param int           $game   Game to get the menu for
+     * @param int           $game       Game to get the menu for
+     * @param string        $gameName   Key to create the correct link
+     * @param array         $games 
      *
      * @return \htmlChunk           htmlChunk with the menu
      */
-    public function returnMenu($game, $gameName)
+    public function returnMenu($game, $gameName, $games)
     {
         $menuItems = $this->controller->getMenuForGame($game);
-        return $this->view->createHtmlMenu($menuItems, $gameName);
+        return $this->view->createHtmlMenu($menuItems, $gameName, $game, $games);
     }
 }

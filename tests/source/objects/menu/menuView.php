@@ -48,9 +48,14 @@ class menuViewTest extends PHPUnit_Framework_TestCase
                 'name' => "Logout"
             )
         );
-        $htmlChunk = $this->view->createHtmlMenu($menuItems, $gameName);
+        $htmlArray = $this->view->createHtmlMenu($menuItems, $gameName, 0, array());
+        $htmlChunk = $htmlArray['menu'];
         $actual = $htmlChunk->render();
-        $expected = "<table>\n  <tr>\n    <td>\n      <a href='http://localhost/index.php/test/menu/logout'>\n        Logout\n      </a>\n    </td>\n  </tr>\n</table>\n";
+        $expected = "<table>\n  <tr>\n" .
+            "    <td>\n      <select name='gameSelect' id='gameSelect' onchange='selectGame(this)'>\n" .
+	    "        <option>\n          Select a game\n        </option>\n      </select>\n    </td>\n" .
+	    "    <td>\n      <a href='http://localhost/index.php/test/menu/logout'>\n        Logout\n      </a>\n    </td>\n" .
+	    "  </tr>\n</table>\n";
         $this->assertEquals($expected, $actual, "Logout was not rendered properly!");
     }
 
@@ -71,9 +76,12 @@ class menuViewTest extends PHPUnit_Framework_TestCase
                 'name' => "Logout"
             )
         );
-        $htmlChunk = $this->view->createHtmlMenu($menuItems, $gameName);
+        $htmlArray = $this->view->createHtmlMenu($menuItems, $gameName, 0, array());
+        $htmlChunk = $htmlArray['menu'];
         $actual = $htmlChunk->render();
         $expected = "<table>\n  <tr>\n" .
+            "    <td>\n      <select name='gameSelect' id='gameSelect' onchange='selectGame(this)'>\n" .
+	    "        <option>\n          Select a game\n        </option>\n      </select>\n    </td>\n" .
             "    <td>\n      <a href='http://localhost/index.php/admin/menu/game'>\n        Game creator\n      </a>\n    </td>\n" .
             "    <td>\n      <a href='http://localhost/index.php/admin/menu/user'>\n        User editor\n      </a>\n    </td>\n" .
             "    <td>\n      <a href='http://localhost/index.php/admin/menu/logout'>\n        Logout\n      </a>\n    </td>\n" .

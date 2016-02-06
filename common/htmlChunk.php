@@ -20,6 +20,7 @@ class htmlChunk extends html
     const TABLEHEADER = "th";
     const TABLECELL   = "td";
     const LINK        = "a";
+    const BOLD        = "b";
     const SELECT      = "select";
     const OPTION      = "option";
     const INPUTTYPES  = array(
@@ -344,5 +345,15 @@ class htmlChunk extends html
         $option = new htmlChunk(htmlChunk::OPTION, false, false, $settings);
         $option->addHtml($name);
         return $option;
+    }
+
+    /**
+     * Generates a bold text
+     */
+    public static function generateBold($text)
+    {
+        $bold = new htmlChunk(htmlChunk::BOLD);
+        $bold->addHtml($text);
+        return $bold;
     }
 }

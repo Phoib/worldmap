@@ -11,6 +11,9 @@
  */
 class game extends model
 {
+    const CHANGE_MENU = 2;
+    const KEY_EXISTS  = -1;
+
     /**
      * @var array $game
      */
@@ -31,13 +34,13 @@ class game extends model
 
         $this->game = $this->controller->determineGame();
         $this->id = $this->game['id'];
-
-        $menu = new menu();
-        $menuHtml = $menu->returnMenu($this->id, $this->game['key']);
-        $this->view->addHtml($menuHtml);
+        $this->view->setGameKey($this->game['key']);
 
         $games = $this->controller->getAllGames();
-        $this->view->generateLinkScreen($games, $this->id);
+        $menu = new menu();
+        $menuHtml = $menu->returnMenu($this->id, $this->game['key'], $games);
+        $this->view->addHtml($menuHtml['menu'], 'menu');
+        $this->view->setJavascript($menuHtml['javascript']);
 
         switch($this->id) {
             case -1:
@@ -89,7 +92,43 @@ class game extends model
      */
     protected function handleAdminGame()
     {
-        $this->view->generateAdminScreen();
+        if(!empty($_POST)) {
+            $return = $this->controller->handleAdminPost();
+            switch($return) {
+            case self::CHANGE_MENU:
+                $games = $this->controller->getAllGames();
+                $menu = new menu();
+                $menuHtml = $menu->returnMenu($this->id, $this->game['key'], $games);
+                $this->view->addHtml($menuHtml['menu'], 'menu');
+                break;
+            case static::KEY_EXISTS:
+                $game = array(
+                    'name' => $_POST['name'],
+                    'warning' => static::KEY_EXISTS
+                );
+                $_GET['id'] = 'new';
+                $this->view->editGame($game);
+                return;
+                break;
+            }
+        }
+        if(!isset($_GET['menu'])) {
+            $_GET['menu'] = "";
+        }   
+        switch($_GET['menu']) {
+        case 'game':
+            if(isset($_GET['id'])) {
+                $game = $this->controller->getGame($_GET['id']);
+                $this->view->editGame($game);
+            } else{
+                $games = $this->controller->getAllGames();
+                $this->view->generateGameEditScreen($games);
+            }
+        break;
+        default:
+            $this->view->generateAdminScreen();
+        break;
+        }
     }
 
     /**

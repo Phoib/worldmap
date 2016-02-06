@@ -136,4 +136,67 @@ class gameControllerTest extends PHPUnit_Framework_TestCase
         $actual = $this->controller->getAllGames();
         $this->assertEquals($expected, $actual, "Not all games were loaded!");
     }
+
+    /**
+     * Tests to get specific game
+     */
+    public function test_getGame()
+    {
+        $expected = array(
+            "id" => 1,
+            "name" => "Test Worldmap",
+            "key" => "test"
+        );
+        $actual = $this->controller->getGame(1);
+        $this->assertEquals($expected, $actual, "The correct game was not loaded!");
+    }
+
+    /**
+     * Test admin functionality
+     */
+    public function testHandleAdminPost()
+    {
+        $this->assertNull($this->controller->handleAdminPost(), "Without an action, nothing should happen");
+        $_POST['action'] = 'newGame';
+        $_POST['key'] = 'test';
+        $this->assertEquals(
+            $this->controller->handleAdminPost(),
+            game::KEY_EXISTS,
+            "Should throw a warning if the key exists!"
+        );
+        $expected = array(
+            "id" => 2,
+            "name" => "new",
+            "key" => "newKey"
+        );
+        $_POST['key'] = $expected['key'];
+        $_POST['name'] = $expected['name'];
+        $this->assertEquals(
+            $this->controller->handleAdminPost(),
+            game::CHANGE_MENU,
+            "Should say to reload the menu!"
+        );
+        $actual = $this->controller->getGame(2);
+        $this->assertEquals($expected, $actual, "The correct game was not loaded!");
+        $_POST['action'] = 'editGame';
+        $_POST['id'] = 1;
+        $this->assertEquals(
+            $this->controller->handleAdminPost(),
+            game::KEY_EXISTS,
+            "Should throw a warning if the key exists!"
+        );
+        $expected['name'] = "newer";
+        $expected['key'] = 'newerKey';
+        $_POST['id'] = $expected['id'];
+        $_POST['key'] = $expected['key'];
+        $_POST['name'] = $expected['name'];
+        $this->assertEquals(
+            $this->controller->handleAdminPost(),
+            game::CHANGE_MENU,
+            "Should say to reload the menu!"
+        );
+        $actual = $this->controller->getGame(2);
+        $this->assertEquals($expected, $actual, "The correct game was not loaded!");
+
+    }
 }
