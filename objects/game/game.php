@@ -102,13 +102,17 @@ class game extends model
                 $this->view->addHtml($menuHtml['menu'], 'menu');
                 break;
             case static::KEY_EXISTS:
-                $game = array(
-                    'name' => $_POST['name'],
-                    'warning' => static::KEY_EXISTS
-                );
-                $_GET['id'] = 'new';
-                $this->view->editGame($game);
-                return;
+                switch($_GET['menu']) {
+                case 'game':
+                    $game = array(
+                        'name' => $_POST['name'],
+                        'warning' => static::KEY_EXISTS
+                    );
+                    $_GET['id'] = 'new';
+                    $this->view->editGame($game);
+                    return;
+                    break;
+                }
                 break;
             }
         }
@@ -123,6 +127,15 @@ class game extends model
             } else{
                 $games = $this->controller->getAllGames();
                 $this->view->generateGameEditScreen($games);
+            }
+        break;
+        case 'user':
+            if(isset($_GET['id'])) {
+                $user = $this->controller->getUser($_GET['id']);
+                $this->view->editUser($user);
+            } else{
+                $users = $this->controller->getAllUsers();
+                $this->view->generateUserEditScreen($users);
             }
         break;
         default:

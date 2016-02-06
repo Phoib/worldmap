@@ -31,9 +31,26 @@ class gameController extends controller
         return $this->getById("game", -1);
     }
 
+    /**
+     * Return a specific game by id
+     *
+     * @var int $id
+     * @return array
+     */
     public function getGame($id)
     {
         return $this->getById("game", $id);
+    }
+
+    /**
+     * Return a specific user by id
+     *
+     * @var int $id
+     * @return array
+     */
+    public function getUser($id)
+    {
+       return $this->getById("users", $id);
     }
 
     /**
@@ -44,6 +61,16 @@ class gameController extends controller
     public function getAllGames()
     {
         return $this->getWholeTable("game");
+    }
+
+    /**
+     * Return all the users
+     *
+     * @return array
+     */
+    public function getAllUsers()
+    {
+        return $this->getWholeTable("users");
     }
 
     public function handleAdminPost()

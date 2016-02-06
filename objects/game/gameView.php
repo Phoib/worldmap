@@ -118,6 +118,28 @@ class gameView extends view
         $this->addHtml($table);
     }
 
+    public function generateUserEditScreen($users)
+    {
+        $text = "Please select an user to edit";
+        $baseUrl = htmlChunk::generateBaseUrl() . $this->gameKey . "/menu/user/";
+
+        $newLink = htmlChunk::generateLink($baseUrl . "id/new", "New");
+        $table = array(array($text, $newLink));
+        foreach ($users as $user) {
+            $url = $baseUrl . "id/" . $user['id'];
+            $link = htmlChunk::generateLink($url, "Edit");
+            $row = array($user['username'], $link);
+            $table[] = $row;
+        }
+        $table = htmlChunk::generateTableFromArray($table);
+        $this->addHtml($table);
+    }
+
+    public function editUser($user)
+    {
+        var_dump($user);
+    }
+
     public function editGame($game) 
     {
         $action = "editGame";
