@@ -154,7 +154,7 @@ class gameControllerTest extends PHPUnit_Framework_TestCase
     /**
      * Test admin functionality
      */
-    public function testHandleAdminPost()
+    public function testHandleAdminPostGame()
     {
         $this->assertNull($this->controller->handleAdminPost(), "Without an action, nothing should happen");
         $_POST['action'] = 'newGame';
@@ -197,6 +197,75 @@ class gameControllerTest extends PHPUnit_Framework_TestCase
         );
         $actual = $this->controller->getGame(2);
         $this->assertEquals($expected, $actual, "The correct game was not loaded!");
+    }
+
+    /**
+     * Test admin functionality for users
+     */
+    public function testHandleAdminPostUsers()
+    {
+        $this->mysqlLoader->loadSQLFile("tests/sql/objects/users/users.sql");
+        $this->assertNull($this->controller->handleAdminPost(), "Without an action, nothing should happen");
+        $_POST['action'] = 'newUser';
+        $_POST['username'] = 'admin';
+        $this->assertEquals(
+            $this->controller->handleAdminPost(),
+            game::KEY_EXISTS,
+            "Should throw a warning if the key exists!"
+        );
+        $_POST['username'] = 'ADmin';
+        $this->assertEquals(
+            $this->controller->handleAdminPost(),
+            game::KEY_EXISTS,
+            "Should throw a warning if the key exists, no matter the casing of the characters"
+        );
+        $expected = array(
+            "id" => 2,
+            "username" => "new",
+            "password" => "123"
+        );
+        $_POST['username'] = $expected['username'];
+        $this->assertEquals(
+            game::EMPTY_PASSWORD,
+            $this->controller->handleAdminPost(),
+            "Should return error code if no password is defined"
+        );
+
+        $_POST['password'] = $expected['password'];
+        $this->assertEquals(
+            2,
+            $this->controller->handleAdminPost(),
+            "Should return the new ID for new users"
+        );
+        $actual = $this->controller->getUser(2);
+        $userController = new UsersController("users");
+        $expected["password"] = $userController->hashPlainTextToPassword($_POST['password'], $actual['salt']);
+        $expected["salt"] = $actual['salt'];
+        
+        $this->assertEquals($expected, $actual, "The correct user was not loaded!");
+
+        $_POST['action'] = 'editUser';
+        $_POST['id'] = 1;
+        $this->assertEquals(
+            $this->controller->handleAdminPost(),
+            game::KEY_EXISTS,
+            "Should throw a warning if the username exists!"
+        );
+        $expected['username'] = "newer";
+        $expected['password'] = 'newerKey';
+        $_POST['id'] = $expected['id'];
+        $_POST['password'] = $expected['password'];
+        $_POST['username'] = $expected['username'];
+        $this->assertEquals(
+            $this->controller->handleAdminPost(),
+            game::SUCCESS,
+            "Should say to reload the menu!"
+        );
+        $actual = $this->controller->getUser(2);
+        $expected["password"] = $userController->hashPlainTextToPassword($_POST['password'], $actual['salt']);
+        $expected["salt"] = $actual['salt'];
+        $this->assertEquals($expected, $actual, "The correct game was not loaded!");
 
     }
+
 }

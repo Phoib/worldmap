@@ -118,6 +118,60 @@ class gameView extends view
         $this->addHtml($table);
     }
 
+    public function generateUserEditScreen($users)
+    {
+        $text = "Please select an user to edit";
+        $baseUrl = htmlChunk::generateBaseUrl() . $this->gameKey . "/menu/user/";
+
+        $newLink = htmlChunk::generateLink($baseUrl . "id/new", "New");
+        $table = array(array($text, $newLink));
+        foreach ($users as $user) {
+            $url = $baseUrl . "id/" . $user['id'];
+            $link = htmlChunk::generateLink($url, "Edit");
+            $row = array($user['username'], $link);
+            $table[] = $row;
+        }
+        $table = htmlChunk::generateTableFromArray($table);
+        $this->addHtml($table);
+    }
+
+    public function editUser($user)
+    {
+        $action = "editUser";
+        if($_GET['id'] == 'new') {
+            $action = 'newUser';
+        }
+        $table = array();
+        if (key_exists('warning', $user) && $user['warning'] == game::KEY_EXISTS) {
+            $table[] = array(
+                "Username",
+                htmlChunk::generateInput("text", "username", "username", $user['username']),
+                htmlChunk::generateBold("Username already exists!") 
+            );
+        } else{
+            $table[] = array(
+                "Username",
+                htmlChunk::generateInput("text", "username", "username", $user['username'])
+            );
+        }
+        $table[] = array(
+            "Password",
+            htmlChunk::generateInput("password", "password", "password")
+        );
+        $table[] = array(
+            htmlChunk::generateInput("submit", "submit", "submit", "Save"),
+            htmlChunk::generateInput("submit", "cancel", "cancel", "Cancel"),
+            htmlChunk::generateInput("hidden", "id", "id", $user['id']),
+            htmlChunk::generateInput("hidden", "action", "action", $action),
+        );
+        $table = htmlChunk::generateTableFromArray($table);
+
+        $baseUrl = htmlChunk::generateBaseUrl() . $this->gameKey . "/menu/user/";
+        $form = htmlChunk::generateForm($baseUrl, $action, $action);
+        $form->addHtml($table);
+        $this->addHtml($form);
+    }
+
     public function editGame($game) 
     {
         $action = "editGame";
