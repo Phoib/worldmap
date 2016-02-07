@@ -73,6 +73,19 @@ class gameController extends controller
         return $this->getWholeTable("users");
     }
 
+    /**
+     * Return the relevant counts
+     *
+     * @return array
+     */
+    public function getAdminCounts()
+    {
+        return array(
+            'game' => $this->getCountOfTable('game'),
+            'users' => $this->getCountOfTable('users')
+        );
+    }
+
     public function handleAdminPost()
     {
         if(!isset($_POST['action'])) {

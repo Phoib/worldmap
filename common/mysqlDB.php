@@ -174,6 +174,23 @@ class mysqlDB
     }
 
     /**
+     * Get a count of entries in a table
+     *
+     * @param  string $table Table to retrieve the count from
+     * @return int           Return the count of the entries in the table
+     */  
+    public function getCountOfTable($table)
+    {
+        $sql = $this->sanitize(sprintf("SELECT COUNT(*) AS `cnt` FROM %s WHERE 1", $table));
+        $result = $this->getRow($sql);
+        if (isset($result['cnt'])) {
+            return $result['cnt'];
+        }
+        return 0;
+    }
+
+
+    /**
      * Get all rows from a table
      *
      * @param  string $table Table to retrieve the row from
