@@ -156,7 +156,8 @@ class game extends model
             }
         break;
         default:
-            $this->view->generateAdminScreen();
+            $counts = $this->controller->getAdminCounts();
+            $this->view->generateAdminScreen($counts);
         break;
         }
     }
@@ -166,12 +167,22 @@ class game extends model
      */
     protected function handleDevGame()
     {
-        $phpUnit = new phpUnit("tests/source");
+        if(!isset($_GET['menu'])) {
+            $_GET['menu'] = "";
+        }   
+        switch($_GET['menu']) {
+        case 'test':
+            $phpUnit = new phpUnit("tests/source");
 
-        $phpUnit->executeTests();
-        $testHtml = $phpUnit->returnTable();
+            $phpUnit->executeTests();
+            $testHtml = $phpUnit->returnTable();
 
-        $this->view->generateDevelScreen($testHtml);
+            $this->view->generateDevelScreen($testHtml);
+            break;
+        case 'install':
+            echo "Here be the installer";
+            break;
+        }
     }
 
     /**

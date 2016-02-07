@@ -51,8 +51,13 @@ class gameViewTest extends PHPUnit_Framework_TestCase
      */
     public function test_generateAdminScreen()
     {
-        $expected = "<!DOCTYPE html>\n<html lang='en'>\n  <head>\n    <title>Worldmap admin</title>\n  </head>\n  <body>\n    Here will be admin functionality\n  </body>\n</html>";
-        $this->view->generateAdminScreen();
+        $expected = "<!DOCTYPE html>\n<html lang='en'>\n  <head>\n    <title>Worldmap admin</title>\n  </head>\n  <body>\n" .
+          "    <table>\n" .
+          "      <tr>\n        <td>\n          Amount of games\n        </td>\n        <td>\n          3\n        </td>\n      </tr>\n" .
+          "      <tr>\n        <td>\n          Amount of users\n        </td>\n        <td>\n          2\n        </td>\n      </tr>\n" .
+          "    </table>\n" .
+          "  </body>\n</html>";
+        $this->view->generateAdminScreen(array('users' => 2, 'game' => 3));
         $this->view->render();
         $actual = $this->view->getHtml();
         $this->assertEquals($expected, $actual, "The admin screen was not rendered properly");

@@ -39,10 +39,21 @@ class gameView extends view
     /**
      * Prepare the view for the admin screen
      */
-    public function generateAdminScreen()
+    public function generateAdminScreen($counts)
     {
         $this->setTitle("Worldmap admin");
-        $this->addHtml("Here will be admin functionality");
+        $namedCounts = array(
+            array(
+                "Amount of games",
+                $counts['game']
+            ),
+            array(
+                "Amount of users",
+                $counts['users']
+            )
+        );
+        $table = htmlChunk::generateTableFromArray($namedCounts);
+        $this->addHtml($table);
     }
 
     /**

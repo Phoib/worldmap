@@ -235,4 +235,17 @@ class mysqlDBTest extends PHPUnit_Framework_TestCase
         }
         $this->assertEquals($expected, $actual, "SQL Statements not logged!");
     }
+
+    /**
+     * Tests if the count function works
+     */
+    public function testCount()
+    {
+        $this->mysqlLoader->loadSQLFile("tests/sql/common/mysqlDB.sql");
+        $this->mysql->describeTable('persons');
+        $actual = $this->mysql->getCountOfTable('persons');
+        $this->assertEquals($actual, 3, "The count was not correct!");
+        $actual = $this->mysql->getCountOfTable('personsNotThere');
+        $this->assertEquals($actual, 0, "The count of non existing table was not correct!");
+    }
 }
