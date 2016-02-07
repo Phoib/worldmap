@@ -137,7 +137,39 @@ class gameView extends view
 
     public function editUser($user)
     {
-        var_dump($user);
+        $action = "editUser";
+        if($_GET['id'] == 'new') {
+            $action = 'newUser';
+        }
+        $table = array();
+        if (key_exists('warning', $user) && $user['warning'] == game::KEY_EXISTS) {
+            $table[] = array(
+                "Username",
+                htmlChunk::generateInput("text", "username", "username", $user['username']),
+                htmlChunk::generateBold("Username already exists!") 
+            );
+        } else{
+            $table[] = array(
+                "Username",
+                htmlChunk::generateInput("text", "username", "username", $user['username'])
+            );
+        }
+        $table[] = array(
+            "Password",
+            htmlChunk::generateInput("password", "password", "password")
+        );
+        $table[] = array(
+            htmlChunk::generateInput("submit", "submit", "submit", "Save"),
+            htmlChunk::generateInput("submit", "cancel", "cancel", "Cancel"),
+            htmlChunk::generateInput("hidden", "id", "id", $user['id']),
+            htmlChunk::generateInput("hidden", "action", "action", $action),
+        );
+        $table = htmlChunk::generateTableFromArray($table);
+
+        $baseUrl = htmlChunk::generateBaseUrl() . $this->gameKey . "/menu/user/";
+        $form = htmlChunk::generateForm($baseUrl, $action, $action);
+        $form->addHtml($table);
+        $this->addHtml($form);
     }
 
     public function editGame($game) 
