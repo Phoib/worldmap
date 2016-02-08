@@ -28,18 +28,30 @@ class game extends model
     protected $id;
 
     /**
+     * @var array   $user
+     */
+    protected $user;
+
+    /**
      * Construct a game object, and handle it's printing
      */
-    public function __construct()
+    public function __construct($user)
     {
         $this->controller = new gameController("game");
         $this->view       = new gameView();
 
-        $this->game = $this->controller->determineGame();
+        $this->user = $user;
+        $this->game = $this->controller->determineGame($user);
+
+        // If permissions don't match
+        if (!$this->game) {
+            return false;
+        }
+
         $this->id = $this->game['id'];
         $this->view->setGameKey($this->game['key']);
 
-        $games = $this->controller->getAllGames();
+        $games = $this->controller->getAllPermissionGames($user['permission']);
         $menu = new menu();
         $menuHtml = $menu->returnMenu($this->id, $this->game['key'], $games);
         $this->view->addHtml($menuHtml['menu'], 'menu');

@@ -15,9 +15,11 @@ class gameController extends controller
     /**
      * Determines the game, on the basis of the GET - game variable.
      *
+     * @var array   $user
+     *
      * @return array  $game   The game object
      */
-    public function determineGame()
+    public function determineGame($user)
     {
         $gameName = "";
         if(isset($_GET['game'])) {
@@ -26,6 +28,9 @@ class gameController extends controller
         $sql = sprintf("SELECT * FROM game WHERE `key` = '%s'", $this->sanitize($gameName));
         $game = $this->getRow($sql);
         if($game) {
+            if ($game['permission'] < $user['permission']) {
+                return false;
+            }
             return $game;
         }
         return $this->getById("game", -1);
@@ -62,6 +67,27 @@ class gameController extends controller
     {
         return $this->getWholeTable("game");
     }
+
+    /**
+     * Return all the games by permission level
+     *
+     * @param int
+     *
+     * @return array
+     */
+    public function getAllPermissionGames($permission)
+    {
+        return $this->getRows(
+            sprintf(
+                "SELECT * FROM game WHERE permission >= %d",
+                $permission
+                )
+            );
+    }
+
+    /**
+     * Return all permission levels
+     */
 
     /**
      * Return all the users

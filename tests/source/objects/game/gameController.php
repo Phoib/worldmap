@@ -65,44 +65,55 @@ class gameControllerTest extends PHPUnit_Framework_TestCase
         $expected = array(
             "id" => -1,
             "name" => "Selection",
-            "key" => ""
+            "key" => "",
+            "permission" => 3
         );
-        $actual = $this->controller->determineGame();
+        $user = array('permission' => 3);
+        $actual = $this->controller->determineGame($user);
         $this->assertEquals($expected, $actual, "The game with id -1 is not loaded");
 
         $_GET['game'] = "NotThereMate";
-        $actual = $this->controller->determineGame();
+        $actual = $this->controller->determineGame($user);
         $this->assertEquals($expected, $actual, "The non existent game did not default to id -1");
 
         $_GET['game'] = "injection' OR 1;";
-        $actual = $this->controller->determineGame();
+        $actual = $this->controller->determineGame($user);
         $this->assertEquals($expected, $actual, "The SQL injection did not default to id -1");
 
         $expected = array(
             "id" => -2,
             "name" => "Admin",
-            "key" => "admin"
+            "key" => "admin",
+            "permission" => 2
         );
         $_GET['game'] = "admin";
-        $actual = $this->controller->determineGame();
+        $actual = $this->controller->determineGame($user);
+        $this->assertFalse($actual, "The level is not sufficient enough for admin");
+        $user = array('permission' => 2);
+        $actual = $this->controller->determineGame($user);
         $this->assertEquals($expected, $actual, "The game with id -2 did not get loaded");
  
         $expected = array(
             "id" => -3,
             "name" => "Development",
-            "key" => "devel"
+            "key" => "devel",
+            "permission" => 1
         );
         $_GET['game'] = "devel";
-        $actual = $this->controller->determineGame();
+        $actual = $this->controller->determineGame($user);
+        $this->assertFalse($actual, "The level is not sufficient enough for dev");
+        $user = array('permission' => 1);
+        $actual = $this->controller->determineGame($user);
         $this->assertEquals($expected, $actual, "The game with id -3 did not get loaded");
 
         $expected = array(
             "id" => 1,
             "name" => "Test Worldmap",
-            "key" => "test"
+            "key" => "test",
+            "permission" => 3
         );
         $_GET['game'] = "test";
-        $actual = $this->controller->determineGame();
+        $actual = $this->controller->determineGame($user);
         $this->assertEquals($expected, $actual, "The game with id 1 did not get loaded");
     }
 
@@ -115,22 +126,26 @@ class gameControllerTest extends PHPUnit_Framework_TestCase
             array(
                 "id" => -3,
                 "name" => "Development",
-                "key" => "devel"
+                "key" => "devel",
+                "permission" => 1
             ),    
             array(
                 "id" => -2,
                 "name" => "Admin",
-                "key" => "admin"
+                "key" => "admin",
+                "permission" => 2
             ),    
             array(
                 "id" => -1,
                 "name" => "Selection",
-                "key" => ""
+                "key" => "",
+                "permission" => 3
             ),    
             array(
                 "id" => 1,
                 "name" => "Test Worldmap",
-                "key" => "test"
+                "key" => "test",
+                "permission" => 3
             ),    
         );
         $actual = $this->controller->getAllGames();
@@ -145,7 +160,8 @@ class gameControllerTest extends PHPUnit_Framework_TestCase
         $expected = array(
             "id" => 1,
             "name" => "Test Worldmap",
-            "key" => "test"
+            "key" => "test",
+            "permission" => 3
         );
         $actual = $this->controller->getGame(1);
         $this->assertEquals($expected, $actual, "The correct game was not loaded!");
@@ -167,7 +183,8 @@ class gameControllerTest extends PHPUnit_Framework_TestCase
         $expected = array(
             "id" => 2,
             "name" => "new",
-            "key" => "newKey"
+            "key" => "newKey",
+            "permission" => 3
         );
         $_POST['key'] = $expected['key'];
         $_POST['name'] = $expected['name'];
@@ -222,7 +239,8 @@ class gameControllerTest extends PHPUnit_Framework_TestCase
         $expected = array(
             "id" => 2,
             "username" => "new",
-            "password" => "123"
+            "password" => "123",
+            "permission" => 3
         );
         $_POST['username'] = $expected['username'];
         $this->assertEquals(

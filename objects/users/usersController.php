@@ -16,8 +16,10 @@ class usersController extends controller
      */
     public function logout()
     {
-        session_unset();
-        session_destroy();
+        if (!empty(session_id())) {
+            session_unset();
+            session_destroy();
+        }
     }
 
     /**
@@ -29,12 +31,14 @@ class usersController extends controller
     {
         $userId     = $_SESSION['userId'];
         $userSecret = $_SESSION['userSecret'];
+        $permission = $_SESSION['permission'];
 
         $user = array();
 
-        $sql = sprintf("SELECT id, salt, username FROM users WHERE id = %d", $userId);
+        $sql = sprintf("SELECT id, salt, username, permission FROM users WHERE id = %d", $userId);
         $userDetails = $this->getRow($sql);
-        if(!$userDetails) {
+        if (!$userDetails) {
+            $this->logout();
             $user['userId'] = users::NO_USER_NO_LOGIN;
             return $user;
         }
@@ -43,12 +47,18 @@ class usersController extends controller
             $userDetails['salt'], 
             $userDetails['username']
         );
-        if($secret != $userSecret) {
+        if ($secret != $userSecret) {
+            $this->logout();
             $user['userId'] = users::NO_USER_NO_LOGIN;
             return $user;
         }
+        if ($permission != $userDetails['permission']) {
+            $user['permission'] = $userDetails['permission'];
+        }
         $user['userId'] = $userId;
+        $user['permission'] = $permission;
         $user['username'] = $userDetails['username'];
+
         return $user;
     }
 
@@ -63,7 +73,7 @@ class usersController extends controller
     {
         $user = array();
 
-        $sql = sprintf("SELECT id, salt, password, username FROM users WHERE username = '%s'", $this->sanitize($username));
+        $sql = sprintf("SELECT id, salt, password, username, permission FROM users WHERE username = '%s'", $this->sanitize($username));
         $userDetails = $this->getRow($sql);
         if(!$userDetails) {
             $user['userId'] = users::NO_USER_INCORRECT_LOGIN;
@@ -74,7 +84,8 @@ class usersController extends controller
             $user['userId'] = users::NO_USER_INCORRECT_LOGIN;
             return $user;
         }
-        $_SESSION['userId'] = $userDetails['id'];
+        $_SESSION['userId']     = $userDetails['id'];
+        $_SESSION['permission'] = $userDetails['permission'];
         $_SESSION['userSecret'] = $this->hashSessionSecret(
             $userDetails['id'], 
             $userDetails['salt'], 
