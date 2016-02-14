@@ -172,7 +172,12 @@ class htmlChunkTest extends PHPUnit_Framework_TestCase
         $expected = "<select name='name' id='id'>\n  <option value='a'>\n    0\n  </option>\n  <option value='b'>\n    1\n  </option>\n  <option value='c'>\n    2\n  </option>\n</select>\n";
         $this->assertEquals($expected, $actual, "Select without onchange is not rendered properly!");
 
-        $select = htmlChunk::generateSelect("name", "id", $options, "changeGame(this)");
+        $select = htmlChunk::generateSelect("name", "id", $options, "b");
+        $actual = $select->render();
+        $expected = "<select name='name' id='id'>\n  <option value='a'>\n    0\n  </option>\n  <option value='b' selected>\n    1\n  </option>\n  <option value='c'>\n    2\n  </option>\n</select>\n";
+        $this->assertEquals($expected, $actual, "Select with selection is not rendered properly!");
+
+        $select = htmlChunk::generateSelect("name", "id", $options, false, "changeGame(this)");
         $actual = $select->render();
         $expected = "<select name='name' id='id' onchange='changeGame(this)'>\n  <option value='a'>\n    0\n  </option>\n  <option value='b'>\n    1\n  </option>\n  <option value='c'>\n    2\n  </option>\n</select>\n";
         $this->assertEquals($expected, $actual, "Select with onchange is not rendered properly!");

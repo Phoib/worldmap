@@ -86,8 +86,23 @@ class gameController extends controller
     }
 
     /**
-     * Return all permission levels
+     * Return all permission levels above permission level of session
      */
+    public function getPermissions()
+    {
+        $levels = $this->getRows(
+            sprintf(
+                "SELECT * FROM permissionLevels WHERE id >= %d",
+                $_SESSION['permission']
+                )
+            );
+
+        $return = array();
+        foreach ($levels as $level) {
+            $return[$level['name']] = $level['id'];
+        }
+        return $return;
+    }
 
     /**
      * Return all the users
@@ -130,7 +145,8 @@ class gameController extends controller
             $game = array(
                 'key' => $_POST['key'],
                 'name' => $_POST['name'],
-                'id' => $_POST['id']
+                'id' => $_POST['id'],
+                "permission" => $_POST['permission']
             );
             $success = $this->update($game, 'id');
             if($success) {
@@ -147,7 +163,9 @@ class gameController extends controller
             $game = new mysqlObject("game");
             $values = array(
                 "key" => $this->sanitize($_POST['key']),
-                "name" => $this->sanitize($_POST['name']));
+                "name" => $this->sanitize($_POST['name']),
+                "permission" => $_POST['permission']
+            );
             $game->insert($values);
             return game::CHANGE_MENU;
         break;
@@ -166,7 +184,8 @@ class gameController extends controller
             if (empty($_POST['password'])) {
                 $user = array(
                     "username" => $username,
-                    "id" => $_POST['id']
+                    "id" => $_POST['id'],
+                    "permission" => $_POST['permission']
                 );
             } else{
                 $salt = $userController->generateSalt();
@@ -174,7 +193,8 @@ class gameController extends controller
                     "username" => $username,
                     "salt" => $salt,
                     "password" => $userController->hashPlainTextToPassword($_POST['password'], $salt),
-                    "id" => $_POST['id']
+                    "id" => $_POST['id'],
+                    "permission" => $_POST['permission']
                 );
             }
             return $userController->update($user, 'id');
@@ -196,7 +216,8 @@ class gameController extends controller
             $values = array(
                 "username" => $username,
                 "salt" => $salt,
-                "password" => $userController->hashPlainTextToPassword($_POST['password'], $salt)
+                "password" => $userController->hashPlainTextToPassword($_POST['password'], $salt),
+                "permission" => $_POST['permission']
             );
             return $user->insert($values);
         break;

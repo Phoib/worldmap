@@ -148,11 +148,12 @@ class game extends model
         if(!isset($_GET['menu'])) {
             $_GET['menu'] = "";
         }   
+        $permissions = $this->controller->getPermissions();
         switch($_GET['menu']) {
         case 'game':
             if(isset($_GET['id'])) {
                 $game = $this->controller->getGame($_GET['id']);
-                $this->view->editGame($game);
+                $this->view->editGame($game, $permissions);
             } else{
                 $games = $this->controller->getAllGames();
                 $this->view->generateGameEditScreen($games);
@@ -161,7 +162,7 @@ class game extends model
         case 'user':
             if(isset($_GET['id'])) {
                 $user = $this->controller->getUser($_GET['id']);
-                $this->view->editUser($user);
+                $this->view->editUser($user, $permissions);
             } else{
                 $users = $this->controller->getAllUsers();
                 $this->view->generateUserEditScreen($users);

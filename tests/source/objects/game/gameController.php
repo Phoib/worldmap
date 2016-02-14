@@ -175,6 +175,7 @@ class gameControllerTest extends PHPUnit_Framework_TestCase
         $this->assertNull($this->controller->handleAdminPost(), "Without an action, nothing should happen");
         $_POST['action'] = 'newGame';
         $_POST['key'] = 'test';
+        $_POST['permission'] = 3;
         $this->assertEquals(
             $this->controller->handleAdminPost(),
             game::KEY_EXISTS,
@@ -225,6 +226,7 @@ class gameControllerTest extends PHPUnit_Framework_TestCase
         $this->assertNull($this->controller->handleAdminPost(), "Without an action, nothing should happen");
         $_POST['action'] = 'newUser';
         $_POST['username'] = 'admin';
+        $_POST['permission'] = 3;
         $this->assertEquals(
             $this->controller->handleAdminPost(),
             game::KEY_EXISTS,

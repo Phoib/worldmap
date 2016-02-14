@@ -176,8 +176,12 @@ class htmlChunk extends html
         if($this->id) {
             $settings .= " id='" . $this->id . "'";
         }
-        foreach($this->settings as $key => $value) {
-            $settings .= " $key='$value'";
+        foreach ($this->settings as $key => $value) {
+            if ($value !== false) {
+                $settings .= " $key='$value'";
+            } else{
+                $settings .= " $key";
+            }
         }
         $html = sprintf("%s<%s%s>\n", 
             $indentation, $this->type, $settings);
@@ -318,7 +322,7 @@ class htmlChunk extends html
     /**
      * Generates a select box
      */
-    public static function generateSelect($name, $id, $options, $onchange = false)
+    public static function generateSelect($name, $id, $options, $selected = false, $onchange = false)
     {
         $settings = array();
         if($onchange) {
@@ -327,7 +331,7 @@ class htmlChunk extends html
         $select = new htmlChunk(htmlChunk::SELECT, $name, $id, $settings);
         $htmlOptions = array();
         foreach($options as $name => $value) {
-            $htmlOptions[] = self::generateOption($name, $value);
+            $htmlOptions[] = self::generateOption($name, $value, $selected);
         }
         $select->addHtml($htmlOptions);
         return $select;
@@ -336,11 +340,14 @@ class htmlChunk extends html
     /**
      * Generates an option field
      */
-    public static function generateOption($name, $value=false)
+    public static function generateOption($name, $value = false, $selected = false)
     {
         $settings = array();
-        if($value) {
+        if ($value) {
             $settings = array('value' => $value);
+            if ($value == $selected) {
+                $settings['selected'] = false;
+            }
         }
         $option = new htmlChunk(htmlChunk::OPTION, false, false, $settings);
         $option->addHtml($name);

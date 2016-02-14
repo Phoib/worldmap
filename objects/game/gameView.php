@@ -104,7 +104,7 @@ class gameView extends view
                 $options[$game['name']] = $game['key'];
             }
         }
-        $select = htmlChunk::generateSelect("gameSelect", "gameSelect", $options, "selectGame(this)");
+        $select = htmlChunk::generateSelect("gameSelect", "gameSelect", $options, false, "selectGame(this)");
         if($return) {
             $return['select'] = $select;
             return $return;
@@ -146,7 +146,7 @@ class gameView extends view
         $this->addHtml($table);
     }
 
-    public function editUser($user)
+    public function editUser($user, $permissions)
     {
         $action = "editUser";
         if($_GET['id'] == 'new') {
@@ -170,6 +170,10 @@ class gameView extends view
             htmlChunk::generateInput("password", "password", "password")
         );
         $table[] = array(
+            "Permission Level",
+            htmlChunk::generateSelect("permission", "permission", $permissions, $user['permission'])
+        );
+        $table[] = array(
             htmlChunk::generateInput("submit", "submit", "submit", "Save"),
             htmlChunk::generateInput("submit", "cancel", "cancel", "Cancel"),
             htmlChunk::generateInput("hidden", "id", "id", $user['id']),
@@ -183,7 +187,7 @@ class gameView extends view
         $this->addHtml($form);
     }
 
-    public function editGame($game) 
+    public function editGame($game, $permissions) 
     {
         $action = "editGame";
         if($_GET['id'] == 'new') {
@@ -207,6 +211,10 @@ class gameView extends view
                 htmlChunk::generateInput("text", "key", "key", $game['key'])
             );
         }
+        $table[] = array(
+            "Required Permission",
+            htmlChunk::generateSelect("permission", "permission", $permissions, $game['permission'])
+        );
         $table[] = array(
             htmlChunk::generateInput("submit", "submit", "submit", "Save"),
             htmlChunk::generateInput("submit", "cancel", "cancel", "Cancel"),
