@@ -63,6 +63,7 @@ class usersControllerTest extends PHPUnit_Framework_TestCase
     public function test_checkUserSession()
     {
         $_SESSION['userId'] = -1;
+        $_SESSION['permission'] = 1;
         $_SESSION['userSecret'] = "";
         $expected = array("userId" => users::NO_USER_NO_LOGIN);
         $actual = $this->controller->checkUserSession();
@@ -75,7 +76,8 @@ class usersControllerTest extends PHPUnit_Framework_TestCase
         $_SESSION['userSecret'] = "5b36224bb3d8c8bb771136fa7a92879b4e5de18d35c7418f2c52cd0ee2c9d16f8eedda7f501855ecf1808ce44ce33902e4e322ba08278d144fea41346855a56e";
         $expected = array(
             "userId" => 1,
-            "username" => "admin"
+            "username" => "admin",
+            "permission" => 1
         );
         $actual = $this->controller->checkUserSession();
         $this->assertEquals($expected, $actual, "User should have a session now!");

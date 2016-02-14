@@ -15,9 +15,11 @@ class gameController extends controller
     /**
      * Determines the game, on the basis of the GET - game variable.
      *
+     * @var array   $user
+     *
      * @return array  $game   The game object
      */
-    public function determineGame()
+    public function determineGame($user)
     {
         $gameName = "";
         if(isset($_GET['game'])) {
@@ -26,6 +28,9 @@ class gameController extends controller
         $sql = sprintf("SELECT * FROM game WHERE `key` = '%s'", $this->sanitize($gameName));
         $game = $this->getRow($sql);
         if($game) {
+            if ($game['permission'] < $user['permission']) {
+                return false;
+            }
             return $game;
         }
         return $this->getById("game", -1);
@@ -61,6 +66,42 @@ class gameController extends controller
     public function getAllGames()
     {
         return $this->getWholeTable("game");
+    }
+
+    /**
+     * Return all the games by permission level
+     *
+     * @param int
+     *
+     * @return array
+     */
+    public function getAllPermissionGames($permission)
+    {
+        return $this->getRows(
+            sprintf(
+                "SELECT * FROM game WHERE permission >= %d",
+                $permission
+                )
+            );
+    }
+
+    /**
+     * Return all permission levels above permission level of session
+     */
+    public function getPermissions()
+    {
+        $levels = $this->getRows(
+            sprintf(
+                "SELECT * FROM permissionLevels WHERE id >= %d",
+                $_SESSION['permission']
+                )
+            );
+
+        $return = array();
+        foreach ($levels as $level) {
+            $return[$level['name']] = $level['id'];
+        }
+        return $return;
     }
 
     /**
@@ -104,7 +145,8 @@ class gameController extends controller
             $game = array(
                 'key' => $_POST['key'],
                 'name' => $_POST['name'],
-                'id' => $_POST['id']
+                'id' => $_POST['id'],
+                "permission" => $_POST['permission']
             );
             $success = $this->update($game, 'id');
             if($success) {
@@ -121,7 +163,9 @@ class gameController extends controller
             $game = new mysqlObject("game");
             $values = array(
                 "key" => $this->sanitize($_POST['key']),
-                "name" => $this->sanitize($_POST['name']));
+                "name" => $this->sanitize($_POST['name']),
+                "permission" => $_POST['permission']
+            );
             $game->insert($values);
             return game::CHANGE_MENU;
         break;
@@ -140,7 +184,8 @@ class gameController extends controller
             if (empty($_POST['password'])) {
                 $user = array(
                     "username" => $username,
-                    "id" => $_POST['id']
+                    "id" => $_POST['id'],
+                    "permission" => $_POST['permission']
                 );
             } else{
                 $salt = $userController->generateSalt();
@@ -148,7 +193,8 @@ class gameController extends controller
                     "username" => $username,
                     "salt" => $salt,
                     "password" => $userController->hashPlainTextToPassword($_POST['password'], $salt),
-                    "id" => $_POST['id']
+                    "id" => $_POST['id'],
+                    "permission" => $_POST['permission']
                 );
             }
             return $userController->update($user, 'id');
@@ -170,7 +216,8 @@ class gameController extends controller
             $values = array(
                 "username" => $username,
                 "salt" => $salt,
-                "password" => $userController->hashPlainTextToPassword($_POST['password'], $salt)
+                "password" => $userController->hashPlainTextToPassword($_POST['password'], $salt),
+                "permission" => $_POST['permission']
             );
             return $user->insert($values);
         break;

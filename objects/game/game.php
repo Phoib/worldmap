@@ -28,18 +28,30 @@ class game extends model
     protected $id;
 
     /**
+     * @var array   $user
+     */
+    protected $user;
+
+    /**
      * Construct a game object, and handle it's printing
      */
-    public function __construct()
+    public function __construct($user)
     {
         $this->controller = new gameController("game");
         $this->view       = new gameView();
 
-        $this->game = $this->controller->determineGame();
+        $this->user = $user;
+        $this->game = $this->controller->determineGame($user);
+
+        // If permissions don't match
+        if (!$this->game) {
+            return false;
+        }
+
         $this->id = $this->game['id'];
         $this->view->setGameKey($this->game['key']);
 
-        $games = $this->controller->getAllGames();
+        $games = $this->controller->getAllPermissionGames($user['permission']);
         $menu = new menu();
         $menuHtml = $menu->returnMenu($this->id, $this->game['key'], $games);
         $this->view->addHtml($menuHtml['menu'], 'menu');
@@ -136,11 +148,12 @@ class game extends model
         if(!isset($_GET['menu'])) {
             $_GET['menu'] = "";
         }   
+        $permissions = $this->controller->getPermissions();
         switch($_GET['menu']) {
         case 'game':
             if(isset($_GET['id'])) {
                 $game = $this->controller->getGame($_GET['id']);
-                $this->view->editGame($game);
+                $this->view->editGame($game, $permissions);
             } else{
                 $games = $this->controller->getAllGames();
                 $this->view->generateGameEditScreen($games);
@@ -149,7 +162,7 @@ class game extends model
         case 'user':
             if(isset($_GET['id'])) {
                 $user = $this->controller->getUser($_GET['id']);
-                $this->view->editUser($user);
+                $this->view->editUser($user, $permissions);
             } else{
                 $users = $this->controller->getAllUsers();
                 $this->view->generateUserEditScreen($users);

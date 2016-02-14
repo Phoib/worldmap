@@ -19,6 +19,11 @@ case users::NO_USER_INCORRECT_LOGIN:
     break;
 }
 
-$game = new game();
+$game = new game($user);
+
+if (!$game) {
+    $users->printLoginScreen();
+    exit(0);
+}
 
 echo $game->returnHtml();
